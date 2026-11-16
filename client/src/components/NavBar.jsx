@@ -1,5 +1,11 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { ShoppingBag, Search, Menu, X } from "lucide-react";
+import {
+    ShoppingBag,
+    Search,
+    Menu,
+    X,
+    UserRound
+} from "lucide-react";
 import { useState } from "react";
 
 const NavBar = () => {
@@ -10,10 +16,9 @@ const NavBar = () => {
     const navigate = useNavigate();
 
     const navLinkStyle = ({ isActive }) =>
-        `transition duration-200 ${
-            isActive
-                ? "text-violet-700 font-semibold"
-                : "text-gray-600 hover:text-violet-700"
+        `transition duration-200 ${isActive
+            ? "text-violet-700 font-semibold"
+            : "text-gray-600 hover:text-violet-700"
         }`;
 
     // SEARCH FUNCTION
@@ -92,6 +97,8 @@ const NavBar = () => {
 
                     <div className="hidden md:flex items-center gap-5">
 
+                        {/* CART */}
+
                         <Link
                             to={"/cart"}
                             className="relative text-gray-700 hover:text-violet-700 transition"
@@ -105,6 +112,8 @@ const NavBar = () => {
 
                         </Link>
 
+                        {/* LOGIN */}
+
                         <Link
                             to={"/login"}
                             className="text-gray-700 hover:text-violet-700 font-medium"
@@ -112,11 +121,23 @@ const NavBar = () => {
                             Login
                         </Link>
 
+                        {/* SIGN UP */}
+
                         <Link
                             to={"/register"}
                             className="bg-violet-700 text-white px-6 py-2.5 rounded-full font-semibold hover:bg-violet-800 transition shadow-md shadow-violet-200"
                         >
                             Sign Up
+                        </Link>
+
+                        {/* PROFILE */}
+
+                        <Link
+                            to="/profile"
+                            className="flex items-center gap-2 text-gray-600 hover:text-violet-600 transition"
+                        >
+                            <UserRound size={20} />
+                            <span>My Profile</span>
                         </Link>
 
                     </div>
@@ -164,6 +185,7 @@ const NavBar = () => {
 
                         <NavLink
                             to={"/"}
+                            className={navLinkStyle}
                             onClick={() => setMenuOpen(false)}
                         >
                             Home
@@ -171,6 +193,7 @@ const NavBar = () => {
 
                         <NavLink
                             to={"/products"}
+                            className={navLinkStyle}
                             onClick={() => setMenuOpen(false)}
                         >
                             Shop
@@ -178,21 +201,38 @@ const NavBar = () => {
 
                         <NavLink
                             to={"/products"}
+                            className={navLinkStyle}
                             onClick={() => setMenuOpen(false)}
                         >
                             Categories
                         </NavLink>
 
+                        {/* MOBILE CART */}
+
                         <Link
                             to={"/cart"}
                             onClick={() => setMenuOpen(false)}
+                            className="flex items-center gap-2 text-gray-600 hover:text-violet-600"
                         >
+                            <ShoppingBag size={20} />
                             Shopping Cart
+                        </Link>
+
+                        {/* MOBILE PROFILE */}
+
+                        <Link
+                            to="/profile"
+                            onClick={() => setMenuOpen(false)}
+                            className="flex items-center gap-2 text-gray-600 hover:text-violet-600"
+                        >
+                            <UserRound size={20} />
+                            My Profile
                         </Link>
 
                         <Link
                             to={"/login"}
                             onClick={() => setMenuOpen(false)}
+                            className="text-gray-600 hover:text-violet-600"
                         >
                             Login
                         </Link>

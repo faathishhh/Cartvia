@@ -8,7 +8,7 @@ import Cart from "./pages/Cart";
 import HomePage from "./pages/HomePage";
 import Footer from "./components/Footer";
 import ProductDetails from "./pages/ProductDetails";
-import HomeLayout from "../layouts/HomeLayout";
+import UserProfile from "./pages/UserProfile";
 
 function App() {
   return (
@@ -20,12 +20,14 @@ function App() {
       <Routes>
 
         {/* <HomeLayout/> */}
+        
         <Route path="/" element={<HomePage />} />
         <Route path="/products" element={<Products />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/products/:id" element={<ProductDetails />} />
+        <Route path="/profile" element={<UserProfile />} />
       </Routes>
 
       <Footer />

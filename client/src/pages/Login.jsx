@@ -55,19 +55,39 @@ const Login = () => {
 
             setLoading(true);
 
-            const response = await API.post("/login", {
-                email: formData.email,
-                password: formData.password,
+            const res = await fetch("http://localhost:5000/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify(formData),
             });
 
-            if (response.data.success) {
+            const data = await res.json();
+
+            console.log("Login Response:", data);
+
+
+            // Check HTTP status
+            if (!res.ok) {
+
+                setError(data.message || "Login failed. Please try again.");
+
+                return;
+
+            }
+
+
+            // Check login success
+            if (data.success) {
 
                 navigate("/");
 
             } else {
 
                 setError(
-                    response.data.message || "Login failed. Please try again."
+                    data.message || "Login failed. Please try again."
                 );
 
             }
@@ -76,10 +96,7 @@ const Login = () => {
 
             console.error("Login error:", err);
 
-            setError(
-                err.response?.data?.message ||
-                "Invalid email or password. Please try again."
-            );
+            setError("Unable to connect to the server. Please try again.");
 
         } finally {
 
@@ -87,18 +104,7 @@ const Login = () => {
 
         }
 
-        //server logic
-
-        const res = await fetch("http://localhost:5000/login", {
-            method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData)
-        })
-        const data=await res.json()
-
-        console.log(data);
-        
-
     };
-
 
     return (
 

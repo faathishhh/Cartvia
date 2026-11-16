@@ -18,7 +18,7 @@ const app = express();
 //to convert json data into original form
 app.use(express.json());
 
-//to access the different origin page(client page ne access cheyyan)
+//it allows your frontend application to communicate with your backend when they run on different origins.
 app.use(cors({ origin: "http://localhost:5173", credentials: true }))
 
 

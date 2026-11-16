@@ -1,5 +1,6 @@
 
 import { Link, useNavigate } from "react-router-dom";
+
 import {
     ShoppingBag,
     Eye,
@@ -11,7 +12,6 @@ import {
 } from "lucide-react";
 
 import { useState } from "react";
-import API from "../services/api";
 
 const Register = () => {
 
@@ -30,7 +30,7 @@ const Register = () => {
         confirmPassword: "",
     });
 
-    // Loading and message states
+    // Loading and messages
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
@@ -42,10 +42,10 @@ const Register = () => {
 
         const { name, value } = e.target;
 
-        setFormData({
-            ...formData,
+        setFormData((previous) => ({
+            ...previous,
             [name]: value,
-        });
+        }));
 
     };
 
@@ -58,16 +58,6 @@ const Register = () => {
 
         setMessage("");
         setError("");
-
-        //server logic
-
-        const res = await fetch("http://localhost:5000/register", {
-            method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData)
-        })
-        
-
-        console.log("User Data:", formData);
-
 
 
         // Password validation
@@ -94,21 +84,49 @@ const Register = () => {
 
             setLoading(true);
 
-            // Send registration data to backend
-            const response = await API.post("/register", {
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                password: formData.password,
+            // Send data to backend using Fetch API
+            const res = await fetch("http://localhost:5000/register", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                },
+
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone,
+                    password: formData.password,
+                }),
+
             });
 
 
-            if (response.data.success) {
+            // Convert response into JSON
+            const data = await res.json();
+
+            console.log("Registration Response:", data);
+
+
+            // Check HTTP response
+            if (!res.ok) {
+
+                setError(data.message || "Registration failed.");
+
+                return;
+
+            }
+
+
+            // Check registration success
+            if (data.success) {
 
                 setMessage(
-                    response.data.message || "Registration successful!"
+                    data.message || "Registration successful!"
                 );
 
+                // Clear form
                 setFormData({
                     name: "",
                     email: "",
@@ -117,15 +135,17 @@ const Register = () => {
                     confirmPassword: "",
                 });
 
-                // Redirect to login after successful registration
+                // Redirect to login
                 setTimeout(() => {
+
                     navigate("/login");
+
                 }, 1500);
 
             } else {
 
                 setError(
-                    response.data.message || "Registration failed."
+                    data.message || "Registration failed."
                 );
 
             }
@@ -135,8 +155,7 @@ const Register = () => {
             console.error("Registration error:", err);
 
             setError(
-                err.response?.data?.message ||
-                "Something went wrong. Please try again."
+                "Unable to connect to the server. Please try again."
             );
 
         } finally {
@@ -174,7 +193,10 @@ const Register = () => {
 
                     <div>
 
-                        <ShoppingBag size={55} className="mb-8 text-violet-200" />
+                        <ShoppingBag
+                            size={55}
+                            className="mb-8 text-violet-200"
+                        />
 
                         <h2 className="text-4xl font-bold leading-tight">
                             Your next favorite thing is just a click away.
@@ -214,7 +236,10 @@ const Register = () => {
 
 
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <form
+                        onSubmit={handleSubmit}
+                        className="space-y-5"
+                    >
 
 
                         {/* NAME */}
@@ -418,7 +443,10 @@ const Register = () => {
                             className="w-full bg-violet-700 text-white py-3.5 rounded-xl font-semibold hover:bg-violet-800 transition shadow-lg shadow-violet-200 disabled:bg-violet-400 disabled:cursor-not-allowed"
                         >
 
-                            {loading ? "Creating Account..." : "Create Account"}
+                            {loading
+                                ? "Creating Account..."
+                                : "Create Account"
+                            }
 
                         </button>
 

@@ -1,5 +1,7 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+
 import {
     ShoppingCart,
     Search,
@@ -9,155 +11,135 @@ import {
     PackageSearch,
 } from "lucide-react";
 
-export const initialProducts = [
-    {
-        _id: "1",
-        productName: "Premium Wireless Headphones",
-        description: "Experience high-quality sound with premium wireless headphones.",
-        price: 3499,
-        discountPrice: 2499,
-        category: "Electronics",
-        brand: "Sony",
-        images: [
-            "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600",
-        ],
-        stock: 15,
-        ratings: 4.8,
-        numReviews: 120,
-        isFeatured: true,
-        isActive: true,
-    },
-    {
-        _id: "2",
-        productName: "Classic Wrist Watch",
-        description: "A stylish watch designed for everyday elegance.",
-        price: 2499,
-        discountPrice: 1899,
-        category: "Fashion",
-        brand: "Fossil",
-        images: [
-            "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600",
-        ],
-        stock: 10,
-        ratings: 4.5,
-        numReviews: 85,
-        isFeatured: false,
-        isActive: true,
-    },
-    {
-        _id: "3",
-        productName: "Modern Backpack",
-        description: "A spacious and comfortable backpack for everyday use.",
-        price: 1999,
-        discountPrice: 1499,
-        category: "Fashion",
-        brand: "Skybags",
-        images: [
-            "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600",
-        ],
-        stock: 20,
-        ratings: 4.6,
-        numReviews: 95,
-        isFeatured: true,
-        isActive: true,
-    },
-    {
-        _id: "4",
-        productName: "Smartphone",
-        description: "Powerful performance with an impressive camera.",
-        price: 21999,
-        discountPrice: 18999,
-        category: "Electronics",
-        brand: "Samsung",
-        images: [
-            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600",
-        ],
-        stock: 8,
-        ratings: 4.9,
-        numReviews: 210,
-        isFeatured: true,
-        isActive: true,
-    },
-    {
-        _id: "5",
-        productName: "Modern Lounge Chair",
-        description: "A comfortable chair that adds elegance to your home.",
-        price: 4499,
-        discountPrice: 3499,
-        category: "Home",
-        brand: "Urban Living",
-        images: [
-            "https://images.unsplash.com/photo-1503602642458-232111445657?w=600",
-        ],
-        stock: 5,
-        ratings: 4.7,
-        numReviews: 65,
-        isFeatured: false,
-        isActive: true,
-    },
-    {
-        _id: "6",
-        productName: "Stylish Sunglasses",
-        description: "Modern sunglasses with a timeless design.",
-        price: 1499,
-        discountPrice: 999,
-        category: "Fashion",
-        brand: "Ray-Ban",
-        images: [
-            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600",
-        ],
-        stock: 0,
-        ratings: 4.4,
-        numReviews: 48,
-        isFeatured: false,
-        isActive: true,
-    },
-];
-
 const Products = () => {
-    const [products] = useState(initialProducts);
+
+    // Products state
+    const [products, setProducts] = useState([]);
+
+    // Loading and error states
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    // Search, category and wishlist states
     const [search, setSearch] = useState("");
     const [category, setCategory] = useState("All");
     const [wishlist, setWishlist] = useState([]);
 
-    const categories = ["All", "Electronics", "Fashion", "Home"];
+    // Fetch products from backend
+    const fetchProducts = async () => {
+
+        try {
+            setLoading(true);
+            setError("");
+
+            const res = await fetch("http://localhost:5000/products");
+
+            const data = await res.json();
+
+            console.log("Products Response:", data);
+
+            if (!res.ok) {
+                throw new Error(data.message || "Failed to fetch products");
+            }
+
+            if (data.success) {
+                setProducts(data.products || []);
+            } else {
+                setError(data.message || "Unable to load products");
+            }
+
+        } catch (error) {
+
+            console.error("Fetch Products Error:", error);
+            setError(error.message || "Something went wrong");
+
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Call API when page loads
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    // Get categories dynamically
+    const categories = [
+        "All",
+        ...new Set(products.map((product) => product.category))
+    ];
 
     // Search and category filtering
     const filteredProducts = products.filter((product) => {
+
         const matchesSearch =
-            product.productName.toLowerCase().includes(search.toLowerCase()) ||
-            product.brand.toLowerCase().includes(search.toLowerCase());
+            product.productName?.toLowerCase().includes(search.toLowerCase()) ||
+            product.brand?.toLowerCase().includes(search.toLowerCase());
 
         const matchesCategory =
             category === "All" || product.category === category;
 
-        return product.isActive && matchesSearch && matchesCategory;
+        return matchesSearch && matchesCategory;
     });
 
     // Wishlist functionality
     const toggleWishlist = (productId) => {
+
         setWishlist((previous) =>
             previous.includes(productId)
                 ? previous.filter((id) => id !== productId)
                 : [...previous, productId]
         );
+
     };
 
-    // Add to cart 
-    const handleAddToCart = (product) => {
+    // Add to cart (temporary)
+    const handleAddToCart = async (product) => {
+
         if (product.stock === 0) {
             alert("Sorry! This product is out of stock.");
             return;
         }
 
-        alert(`${product.productName} added to cart!`);
-    };
+        try {
+            const price =
+                product.discountPrice != null &&
+                    product.discountPrice < product.price
+                    ? product.discountPrice
+                    : product.price;
 
+            const res = await fetch("http://localhost:5000/add-to-cart", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    id: product._id,
+                    price: price
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || "Failed to add product");
+            }
+
+            alert(`${product.productName} added to cart!`);
+
+        } catch (error) {
+            console.error("Add to cart error:", error);
+            alert(error.message);
+        }
+    };
     return (
+
         <div className="min-h-screen bg-[#F8F7FC] px-5 py-10 md:px-12">
 
             {/* Page Heading */}
             <div className="max-w-7xl mx-auto mb-10">
+
                 <p className="text-violet-700 font-semibold uppercase tracking-widest text-sm">
                     Explore CARTIVA
                 </p>
@@ -170,7 +152,9 @@ const Products = () => {
                 <p className="text-gray-500 mt-3 text-lg">
                     Find your favourites. Shop your style. Love every purchase.
                 </p>
+
             </div>
+
 
             {/* Search and Filters */}
             <div className="max-w-7xl mx-auto mb-10">
@@ -179,6 +163,7 @@ const Products = () => {
 
                     {/* Search */}
                     <div className="flex items-center bg-white border border-gray-200 rounded-xl px-4 py-3 lg:w-96 focus-within:ring-2 focus-within:ring-violet-500">
+
                         <Search size={20} className="text-gray-400" />
 
                         <input
@@ -188,48 +173,93 @@ const Products = () => {
                             onChange={(e) => setSearch(e.target.value)}
                             className="w-full outline-none bg-transparent px-3 text-gray-700"
                         />
+
                     </div>
+
 
                     {/* Categories */}
                     <div className="flex flex-wrap gap-2 items-center">
+
                         <SlidersHorizontal
                             size={19}
                             className="text-violet-700 mr-1"
                         />
 
                         {categories.map((item) => (
+
                             <button
                                 key={item}
                                 onClick={() => setCategory(item)}
                                 className={`px-5 py-2.5 rounded-xl font-semibold transition ${category === item
-                                        ? "bg-violet-700 text-white shadow-lg shadow-violet-200"
-                                        : "bg-white text-gray-600 hover:bg-violet-100"
+                                    ? "bg-violet-700 text-white shadow-lg shadow-violet-200"
+                                    : "bg-white text-gray-600 hover:bg-violet-100"
                                     }`}
                             >
                                 {item}
                             </button>
+
                         ))}
+
                     </div>
 
                 </div>
+
             </div>
+
 
             {/* Product Count */}
             <div className="max-w-7xl mx-auto mb-6 flex justify-between items-center">
+
                 <p className="text-gray-600 font-medium">
                     Showing{" "}
                     <span className="text-violet-700 font-bold">
-                        {filteredProducts.length}
+                        {loading ? "..." : filteredProducts.length}
                     </span>{" "}
                     products
                 </p>
+
             </div>
+
 
             {/* Product Grid */}
             <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
 
-                {filteredProducts.length > 0 ? (
+                {loading ? (
+
+                    // Loading State
+                    <div className="col-span-full text-center py-20">
+
+                        <div className="w-12 h-12 border-4 border-violet-200 border-t-violet-700 rounded-full animate-spin mx-auto mb-4"></div>
+
+                        <p className="text-violet-700 font-semibold">
+                            Loading products...
+                        </p>
+
+                    </div>
+
+                ) : error ? (
+
+                    // Error State
+                    <div className="col-span-full text-center py-20 bg-white rounded-2xl">
+
+                        <p className="text-red-500 font-semibold text-lg">
+                            {error}
+                        </p>
+
+                        <button
+                            onClick={fetchProducts}
+                            className="mt-5 bg-violet-700 text-white px-6 py-3 rounded-xl hover:bg-violet-800 transition"
+                        >
+                            Try Again
+                        </button>
+
+                    </div>
+
+                ) : filteredProducts.length > 0 ? (
+
+                    // Display Products
                     filteredProducts.map((product) => (
+
                         <div
                             key={product._id}
                             className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300 group"
@@ -239,19 +269,25 @@ const Products = () => {
                             <div className="relative h-64 bg-gray-100 overflow-hidden">
 
                                 <Link to={`/products/${product._id}`}>
+
                                     <img
                                         src={product.images?.[0]}
                                         alt={product.productName}
                                         className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                                     />
+
                                 </Link>
+
 
                                 {/* Featured Badge */}
                                 {product.isFeatured && (
+
                                     <span className="absolute top-4 left-4 bg-violet-700 text-white text-xs font-bold px-3 py-1.5 rounded-full">
                                         FEATURED
                                     </span>
+
                                 )}
+
 
                                 {/* Wishlist */}
                                 <button
@@ -259,6 +295,7 @@ const Products = () => {
                                     className="absolute top-4 right-4 bg-white p-2.5 rounded-full shadow-md hover:scale-110 transition"
                                     aria-label="Toggle wishlist"
                                 >
+
                                     <Heart
                                         size={19}
                                         className={
@@ -267,21 +304,27 @@ const Products = () => {
                                                 : "text-gray-500"
                                         }
                                     />
+
                                 </button>
+
 
                                 {/* Stock Badge */}
                                 {product.stock === 0 && (
+
                                     <span className="absolute bottom-4 left-4 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-full">
                                         OUT OF STOCK
                                     </span>
+
                                 )}
 
                             </div>
+
 
                             {/* Product Details */}
                             <div className="p-5">
 
                                 <div className="flex justify-between items-center">
+
                                     <p className="text-sm text-violet-700 font-semibold">
                                         {product.brand}
                                     </p>
@@ -289,21 +332,29 @@ const Products = () => {
                                     <p className="text-xs text-gray-400">
                                         {product.category}
                                     </p>
+
                                 </div>
+
 
                                 {/* Product Name */}
                                 <Link to={`/products/${product._id}`}>
+
                                     <h2 className="text-lg font-bold text-gray-900 mt-3 hover:text-violet-700 transition">
                                         {product.productName}
                                     </h2>
+
                                 </Link>
 
+
+                                {/* Description */}
                                 <p className="text-sm text-gray-500 mt-2 line-clamp-2">
                                     {product.description}
                                 </p>
 
+
                                 {/* Ratings */}
                                 <div className="flex items-center gap-1 mt-3">
+
                                     <Star
                                         size={16}
                                         fill="currentColor"
@@ -317,25 +368,37 @@ const Products = () => {
                                     <span className="text-xs text-gray-400">
                                         ({product.numReviews} reviews)
                                     </span>
+
                                 </div>
+
 
                                 {/* Price and Cart */}
                                 <div className="flex items-center justify-between mt-5">
 
                                     <div>
+
                                         <p className="text-xl font-extrabold text-gray-900">
                                             ₹{(
-                                                product.discountPrice ?? product.price
+                                                product.discountPrice != null &&
+                                                    product.discountPrice < product.price
+                                                    ? product.discountPrice
+                                                    : product.price
                                             ).toLocaleString("en-IN")}
                                         </p>
 
-                                        {product.discountPrice != null && (
-                                            <p className="text-sm text-gray-400 line-through">
-                                                ₹{product.price.toLocaleString("en-IN")}
-                                            </p>
-                                        )}
+                                        {product.discountPrice != null &&
+                                            product.discountPrice < product.price && (
+
+                                                <p className="text-sm text-gray-400 line-through">
+                                                    ₹{product.price.toLocaleString("en-IN")}
+                                                </p>
+
+                                            )}
+
                                     </div>
 
+
+                                    {/* Add to Cart */}
                                     <button
                                         onClick={() => handleAddToCart(product)}
                                         disabled={product.stock === 0}
@@ -347,6 +410,7 @@ const Products = () => {
 
                                 </div>
 
+
                                 {/* View Details Button */}
                                 <Link
                                     to={`/products/${product._id}`}
@@ -356,10 +420,16 @@ const Products = () => {
                                 </Link>
 
                             </div>
+
                         </div>
+
                     ))
+
                 ) : (
+
+                    // No Products Found
                     <div className="col-span-full text-center py-20 bg-white rounded-2xl">
+
                         <PackageSearch
                             size={55}
                             className="mx-auto text-violet-300 mb-4"
@@ -372,12 +442,17 @@ const Products = () => {
                         <p className="text-gray-500 mt-2">
                             Try another search or category.
                         </p>
+
                     </div>
+
                 )}
 
             </div>
+
         </div>
+
     );
+
 };
 
 export default Products;

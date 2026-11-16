@@ -1,6 +1,23 @@
+
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, ShoppingBag, Truck, ShieldCheck, Headphones, Star, Sparkles, CreditCard, Heart, MoveRight, Zap, Clock, Gift, CheckCircle, } from "lucide-react";
-import { initialProducts } from "./Products";
+
+import {
+    ArrowRight,
+    ShoppingBag,
+    Truck,
+    ShieldCheck,
+    Headphones,
+    Star,
+    Sparkles,
+    CreditCard,
+    Heart,
+    MoveRight,
+    Zap,
+    Gift,
+    CheckCircle,
+} from "lucide-react";
+
 
 const categories = [
     {
@@ -22,6 +39,7 @@ const categories = [
         number: "03",
     },
 ];
+
 
 const benefits = [
     {
@@ -46,22 +64,98 @@ const benefits = [
     },
 ];
 
+
 const Home = () => {
 
-    const featuredProducts = initialProducts
-        .filter((product) => product.isFeatured && product.isActive !== false)
+    // Product states
+    const [products, setProducts] = useState([]);
+
+    const [loading, setLoading] = useState(true);
+
+    const [error, setError] = useState("");
+
+
+    // Fetch products from backend
+    useEffect(() => {
+
+        const fetchProducts = async () => {
+
+            try {
+
+                setLoading(true);
+                setError("");
+
+                const res = await fetch(
+                    "http://localhost:5000/get-products"
+                );
+
+                const data = await res.json();
+
+                console.log("Home Products Response:", data);
+
+                if (!res.ok) {
+                    throw new Error(
+                        data.message || "Failed to fetch products"
+                    );
+                }
+
+                if (data.success) {
+
+                    setProducts(data.products || []);
+
+                } else {
+
+                    setError(
+                        data.message || "Unable to load products"
+                    );
+
+                }
+
+            } catch (error) {
+
+                console.error("Home Products Error:", error);
+
+                setError(
+                    error.message || "Something went wrong"
+                );
+
+            } finally {
+
+                setLoading(false);
+
+            }
+
+        };
+
+        fetchProducts();
+
+    }, []);
+
+
+    // Get featured products
+    const featuredProducts = products
+        .filter(
+            (product) =>
+                product.isFeatured && product.isActive !== false
+        )
         .slice(0, 4);
 
+
+    // If no featured products exist, display other active products
     const displayProducts =
         featuredProducts.length > 0
             ? featuredProducts
-            : initialProducts.filter(
-                (product) => product.isActive !== false
-            ).slice(0, 4);
+            : products
+                .filter(
+                    (product) => product.isActive !== false
+                )
+                .slice(0, 4);
+
 
     return (
 
         <main className="bg-[#FAF9FE] min-h-screen overflow-hidden">
+
 
             {/* HERO SECTION */}
 
@@ -70,6 +164,7 @@ const Home = () => {
                 <div className="max-w-7xl mx-auto relative overflow-hidden rounded-[30px] bg-gradient-to-br from-[#321064] via-[#5822A5] to-[#8655D8]">
 
                     <div className="grid lg:grid-cols-2 items-center">
+
 
                         {/* HERO CONTENT */}
 
@@ -83,6 +178,7 @@ const Home = () => {
 
                             </div>
 
+
                             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-[1.12] tracking-tight">
 
                                 Discover More.
@@ -93,6 +189,7 @@ const Home = () => {
 
                             </h1>
 
+
                             <p className="text-violet-100 text-base sm:text-lg leading-8 mt-7 max-w-lg">
 
                                 Explore products you'll love, discover exciting
@@ -100,6 +197,7 @@ const Home = () => {
                                 that makes every purchase special.
 
                             </p>
+
 
                             <div className="flex flex-wrap gap-4 mt-9">
 
@@ -114,6 +212,7 @@ const Home = () => {
 
                                 </Link>
 
+
                                 <Link
                                     to="/products"
                                     className="inline-flex items-center gap-2 border border-white/40 text-white px-7 py-4 rounded-xl font-semibold hover:bg-white/10 transition"
@@ -125,30 +224,36 @@ const Home = () => {
 
                             </div>
 
+
                             <div className="flex flex-wrap gap-7 sm:gap-10 mt-12 pt-8 border-t border-white/20">
 
                                 <div>
                                     <h3 className="text-3xl font-extrabold">
                                         100%
                                     </h3>
+
                                     <p className="text-violet-200 text-sm mt-1">
                                         Shopping Experience
                                     </p>
                                 </div>
 
+
                                 <div>
                                     <h3 className="text-3xl font-extrabold">
                                         24/7
                                     </h3>
+
                                     <p className="text-violet-200 text-sm mt-1">
                                         Customer Support
                                     </p>
                                 </div>
 
+
                                 <div>
                                     <h3 className="text-3xl font-extrabold">
                                         Easy
                                     </h3>
+
                                     <p className="text-violet-200 text-sm mt-1">
                                         Online Shopping
                                     </p>
@@ -157,6 +262,7 @@ const Home = () => {
                             </div>
 
                         </div>
+
 
                         {/* HERO IMAGE */}
 
@@ -168,7 +274,9 @@ const Home = () => {
                                 className="w-full h-full min-h-[350px] lg:min-h-[590px] object-cover rounded-3xl"
                             />
 
+
                             <div className="absolute inset-5 sm:inset-8 rounded-3xl bg-gradient-to-t from-purple-950/50 to-transparent"></div>
+
 
                             <div className="absolute bottom-12 left-10 sm:left-14 bg-white rounded-2xl p-5 shadow-2xl max-w-[240px]">
 
@@ -182,9 +290,11 @@ const Home = () => {
 
                                 </div>
 
+
                                 <h3 className="text-xl font-extrabold text-gray-900 mt-3">
                                     Find Your Next Favourite.
                                 </h3>
+
 
                                 <Link
                                     to="/products"
@@ -202,6 +312,7 @@ const Home = () => {
                 </div>
 
             </section>
+
 
 
             {/* TRUST HIGHLIGHTS */}
@@ -244,11 +355,16 @@ const Home = () => {
 
                                 <div className="w-12 h-12 shrink-0 rounded-xl bg-violet-100 flex items-center justify-center">
 
-                                    <Icon size={23} className="text-violet-700" />
+                                    <Icon
+                                        size={23}
+                                        className="text-violet-700"
+                                    />
 
                                 </div>
 
+
                                 <div>
+
                                     <h3 className="font-bold text-gray-900 text-sm sm:text-base">
                                         {item.title}
                                     </h3>
@@ -256,6 +372,7 @@ const Home = () => {
                                     <p className="text-gray-500 text-xs sm:text-sm mt-1">
                                         {item.text}
                                     </p>
+
                                 </div>
 
                             </div>
@@ -267,6 +384,7 @@ const Home = () => {
                 </div>
 
             </section>
+
 
 
             {/* CATEGORY SECTION */}
@@ -291,6 +409,7 @@ const Home = () => {
 
                     </div>
 
+
                     <Link
                         to="/products"
                         className="inline-flex items-center gap-2 text-violet-700 font-bold hover:gap-4 transition-all"
@@ -299,6 +418,7 @@ const Home = () => {
                     </Link>
 
                 </div>
+
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -316,11 +436,14 @@ const Home = () => {
                                 className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
                             />
 
+
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
+
 
                             <div className="absolute top-5 right-5 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-full px-4 py-2 text-xs font-bold">
                                 COLLECTION {category.number}
                             </div>
+
 
                             <div className="absolute bottom-0 left-0 p-7 text-white">
 
@@ -348,6 +471,7 @@ const Home = () => {
             </section>
 
 
+
             {/* FEATURED PRODUCTS */}
 
             <section className="bg-white py-20">
@@ -368,6 +492,7 @@ const Home = () => {
 
                             </div>
 
+
                             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-3">
                                 Featured Products
                             </h2>
@@ -377,6 +502,7 @@ const Home = () => {
                             </p>
 
                         </div>
+
 
                         <Link
                             to="/products"
@@ -388,7 +514,47 @@ const Home = () => {
                     </div>
 
 
-                    {displayProducts.length > 0 ? (
+
+                    {/* Loading State */}
+
+                    {loading ? (
+
+                        <div className="text-center py-16">
+
+                            <div className="w-12 h-12 border-4 border-violet-200 border-t-violet-700 rounded-full animate-spin mx-auto mb-4"></div>
+
+                            <p className="text-violet-700 font-semibold">
+                                Loading products...
+                            </p>
+
+                        </div>
+
+
+                    ) : error ? (
+
+                        /* Error State */
+
+                        <div className="text-center py-16 bg-[#FAF9FE] rounded-2xl">
+
+                            <ShoppingBag
+                                size={45}
+                                className="mx-auto text-red-400"
+                            />
+
+                            <h3 className="text-xl font-bold mt-4 text-gray-800">
+                                Unable to Load Products
+                            </h3>
+
+                            <p className="text-red-500 mt-2">
+                                {error}
+                            </p>
+
+                        </div>
+
+
+                    ) : displayProducts.length > 0 ? (
+
+                        /* Display Products */
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
 
@@ -400,12 +566,18 @@ const Home = () => {
                                     product.discountPrice != null &&
                                     product.discountPrice < product.price;
 
+                                const finalPrice = hasDiscount
+                                    ? product.discountPrice
+                                    : product.price;
+
                                 return (
 
                                     <div
                                         key={product._id}
                                         className="group bg-[#FAF9FE] rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition duration-300"
                                     >
+
+                                        {/* Product Image */}
 
                                         <Link
                                             to={`/products/${product._id}`}
@@ -423,21 +595,37 @@ const Home = () => {
                                             ) : (
 
                                                 <div className="w-full h-full flex items-center justify-center bg-violet-100">
-                                                    <ShoppingBag size={45} className="text-violet-400" />
+
+                                                    <ShoppingBag
+                                                        size={45}
+                                                        className="text-violet-400"
+                                                    />
+
                                                 </div>
 
                                             )}
 
+
                                             <span className="absolute top-4 left-4 bg-violet-700 text-white px-3 py-1.5 rounded-full text-xs font-bold">
-                                                {product.isFeatured ? "FEATURED" : "POPULAR"}
+
+                                                {product.isFeatured
+                                                    ? "FEATURED"
+                                                    : "POPULAR"}
+
                                             </span>
 
+
                                             <div className="absolute top-4 right-4 bg-white p-2.5 rounded-full text-gray-500 shadow-md">
+
                                                 <Heart size={17} />
+
                                             </div>
 
                                         </Link>
 
+
+
+                                        {/* Product Details */}
 
                                         <div className="p-5">
 
@@ -445,7 +633,10 @@ const Home = () => {
                                                 {product.brand || product.category}
                                             </p>
 
-                                            <Link to={`/products/${product._id}`}>
+
+                                            <Link
+                                                to={`/products/${product._id}`}
+                                            >
 
                                                 <h3 className="font-bold text-gray-900 text-lg mt-2 line-clamp-1 hover:text-violet-700 transition">
                                                     {product.productName}
@@ -453,6 +644,9 @@ const Home = () => {
 
                                             </Link>
 
+
+
+                                            {/* Ratings */}
 
                                             <div className="flex items-center gap-1 mt-3">
 
@@ -473,14 +667,15 @@ const Home = () => {
                                             </div>
 
 
+
+                                            {/* Price */}
+
                                             <div className="flex items-center gap-3 mt-4">
 
                                                 <span className="text-xl font-extrabold text-violet-700">
-                                                    ₹{(hasDiscount
-                                                        ? product.discountPrice
-                                                        : product.price
-                                                    ).toLocaleString("en-IN")}
+                                                    ₹{finalPrice.toLocaleString("en-IN")}
                                                 </span>
+
 
                                                 {hasDiscount && (
 
@@ -492,6 +687,9 @@ const Home = () => {
 
                                             </div>
 
+
+
+                                            {/* View Product Button */}
 
                                             <Link
                                                 to={`/products/${product._id}`}
@@ -514,11 +712,17 @@ const Home = () => {
 
                         </div>
 
+
                     ) : (
+
+                        /* Empty Products State */
 
                         <div className="text-center py-16 bg-[#FAF9FE] rounded-2xl">
 
-                            <ShoppingBag size={45} className="mx-auto text-violet-400" />
+                            <ShoppingBag
+                                size={45}
+                                className="mx-auto text-violet-400"
+                            />
 
                             <h3 className="text-xl font-bold mt-4">
                                 Products Coming Soon
@@ -527,6 +731,7 @@ const Home = () => {
                             <p className="text-gray-500 mt-2">
                                 We're preparing something special for you.
                             </p>
+
 
                             <Link
                                 to="/products"
@@ -544,6 +749,7 @@ const Home = () => {
             </section>
 
 
+
             {/* SPECIAL OFFER SECTION */}
 
             <section className="max-w-7xl mx-auto px-5 sm:px-8 py-20">
@@ -554,35 +760,52 @@ const Home = () => {
 
                     <div className="absolute right-20 -bottom-40 w-80 h-80 rounded-full bg-white/10"></div>
 
+
                     <div className="relative z-10 grid md:grid-cols-2 items-center gap-10">
 
                         <div className="text-white">
 
                             <div className="inline-flex items-center gap-2 bg-white/15 px-4 py-2 rounded-full text-sm font-semibold">
+
                                 <Gift size={17} />
+
                                 A better way to shop
+
                             </div>
 
+
                             <h2 className="text-4xl sm:text-5xl font-extrabold leading-tight mt-6">
+
                                 Great Finds.
+
                                 <br />
+
                                 Better Choices.
+
                             </h2>
 
+
                             <p className="text-violet-100 leading-7 mt-5 max-w-lg">
+
                                 From everyday essentials to special finds,
                                 discover products that make your life better.
+
                             </p>
+
 
                             <Link
                                 to="/products"
                                 className="inline-flex items-center gap-3 bg-white text-violet-800 px-7 py-4 rounded-xl font-bold mt-8 hover:bg-violet-100 transition"
                             >
+
                                 Explore Products
+
                                 <ArrowRight size={19} />
+
                             </Link>
 
                         </div>
+
 
 
                         <div className="hidden md:flex justify-center">
@@ -614,6 +837,7 @@ const Home = () => {
             </section>
 
 
+
             {/* WHY CHOOSE CARTIVA */}
 
             <section className="bg-white py-20">
@@ -626,9 +850,11 @@ const Home = () => {
                             The CARTIVA experience
                         </p>
 
+
                         <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-4">
                             Shopping Made Better
                         </h2>
+
 
                         <p className="text-gray-500 mt-4 leading-7">
                             We believe shopping should be simple,
@@ -636,6 +862,7 @@ const Home = () => {
                         </p>
 
                     </div>
+
 
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-14">
@@ -653,13 +880,18 @@ const Home = () => {
 
                                     <div className="w-16 h-16 mx-auto rounded-2xl bg-violet-100 flex items-center justify-center">
 
-                                        <Icon size={30} className="text-violet-700" />
+                                        <Icon
+                                            size={30}
+                                            className="text-violet-700"
+                                        />
 
                                     </div>
+
 
                                     <h3 className="text-lg font-bold text-gray-900 mt-6">
                                         {benefit.title}
                                     </h3>
+
 
                                     <p className="text-gray-500 text-sm leading-6 mt-3">
                                         {benefit.description}
@@ -678,6 +910,7 @@ const Home = () => {
             </section>
 
 
+
             {/* NEWSLETTER SECTION */}
 
             <section className="max-w-7xl mx-auto px-5 sm:px-8 py-20">
@@ -686,18 +919,27 @@ const Home = () => {
 
                     <div className="w-14 h-14 rounded-2xl bg-violet-100 mx-auto flex items-center justify-center">
 
-                        <Sparkles size={27} className="text-violet-700" />
+                        <Sparkles
+                            size={27}
+                            className="text-violet-700"
+                        />
 
                     </div>
+
 
                     <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-6">
                         Stay in the Loop
                     </h2>
 
+
                     <p className="text-gray-500 mt-4 max-w-lg mx-auto leading-7">
+
                         Discover new arrivals, exciting collections and
                         updates from CARTIVA.
+
                     </p>
+
+
 
                     <form
                         onSubmit={(e) => {
@@ -714,6 +956,7 @@ const Home = () => {
                             className="flex-1 min-w-0 px-5 py-4 rounded-xl border border-gray-200 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100 bg-white"
                         />
 
+
                         <button
                             type="submit"
                             className="bg-violet-700 text-white px-7 py-4 rounded-xl font-bold hover:bg-violet-800 transition"
@@ -723,9 +966,14 @@ const Home = () => {
 
                     </form>
 
+
+
                     <p className="text-xs text-gray-400 mt-5 flex items-center justify-center gap-2">
+
                         <CheckCircle size={14} />
+
                         Stay updated with CARTIVA.
+
                     </p>
 
                 </div>
@@ -737,5 +985,6 @@ const Home = () => {
     );
 
 };
+
 
 export default Home;
