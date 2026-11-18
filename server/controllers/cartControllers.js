@@ -64,10 +64,8 @@ export const addToCart = async (req, res) => {
 
 export const getUserCart = async (req, res) => {
     try {
-        const user = req.user;
-
         const userCart = await Cart.findOne({
-            user: user._id
+            user: req.user._id
         }).populate("items.product");
 
         if (!userCart || userCart.items.length === 0) {
@@ -89,7 +87,7 @@ export const getUserCart = async (req, res) => {
 
         const originalTotal = userCart.items.reduce(
             (acc, item) => {
-                return acc + (item.product.price * item.quantity);
+                return acc + ((item.product?.price ?? item.price) * item.quantity);
             },
             0
         );
@@ -121,3 +119,61 @@ export const getUserCart = async (req, res) => {
 };
 
 
+export const removeFromCart = async (req, res) => {
+    try {
+
+
+        const { prodId } = req.params
+
+        const userCart = await Cart.findOne({ user: req.user._id })
+        userCart.items = userCart.items.filter((item) => item.product != prodId)
+        userCart.totalPrice = userCart.items.reduce((acc, item) => acc + (item.price * item.quantity), 0)
+        await userCart.save()
+        res.status(200).json({ message: "item removed", success: true })
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+
+    }
+}
+
+
+
+export const updateQuantity = async (req, res) => {
+    try {
+
+        const { prodId, action } = req.params
+
+        const userCart = await Cart.findOne({ user: req.user._id })
+
+        userCart.items = userCart.items.map((item) => {
+            if (item.product == prodId) {
+                if (action === "increment") {
+                    item.quantity += 1
+                }
+                else {
+                    item.quantity -= 1
+                }
+            }
+            return item
+        })
+
+        userCart.totalPrice = userCart.items.reduce((acc, item) => acc + (item.price * item.quantity), 0)
+
+        await userCart.save()
+        res.status(200).json({ message: "item updated", success: true })
+
+
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+
+
+    }
+}

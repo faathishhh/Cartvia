@@ -9,10 +9,13 @@ import HomePage from "./pages/HomePage";
 import Footer from "./components/Footer";
 import ProductDetails from "./pages/ProductDetails";
 import UserProfile from "./pages/UserProfile";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
     <div>
+      <Toaster position="top-center" />
+
       <NavBar />
 
 

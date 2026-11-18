@@ -9,7 +9,12 @@ import {
     ShieldCheck,
     ShoppingCart,
     Package,
+    Plus,
+    Minus,
+    Trash2,
 } from "lucide-react";
+
+import toast from "react-hot-toast";
 
 const Cart = () => {
 
@@ -72,6 +77,43 @@ const Cart = () => {
         fetchCart();
 
     }, []);
+
+    //remove
+
+    const handleRemoveFromCart = async (prodId) => {
+        try {
+            const res = await fetch(`http://localhost:5000/cart/${prodId}`, { method: "DELETE", credentials: "include" })
+            const data = await res.json()
+            console.log(data);
+            toast.success("Item removed from cart")
+            setCartItems(data.cartItems)
+            fetchCart()
+
+        } catch (error) {
+            console.log(error);
+
+
+        }
+    }
+
+    useEffect(() => {
+        fetchCart()
+    }, [])
+
+
+    //update quantity
+
+    const handleUpdateQuantity=async(prodId,action)=>{
+        try {
+            const res=await fetch(`http://localhost:5000/cart/${prodId}/${action}`,{method:"PUT" ,credentials:"include"})
+            const data=await res.json()
+            console.log(data);
+            fetchCart()
+            
+        } catch (error) {
+            
+        }
+    }
 
 
     // Format currency
@@ -296,6 +338,13 @@ const Cart = () => {
                                                 <h3 className="text-lg font-bold text-gray-800">
                                                     {product.productName}
                                                 </h3>
+                                                <button
+                                                    onClick={() => handleRemoveFromCart(product._id)}
+                                                    className="flex items-center gap-2 text-red-500 hover:text-red-700 text-sm font-semibold mt-3 transition"
+                                                >
+                                                    <Trash2 size={17} />
+                                                    Remove
+                                                </button>
 
                                                 <p className="text-sm text-gray-500 mt-2">
                                                     Category: {product.category}
@@ -311,13 +360,35 @@ const Cart = () => {
 
                                                 <div>
 
-                                                    <p className="text-sm text-gray-500 mb-1">
+                                                    <p className="text-sm text-gray-500 mb-2">
                                                         Quantity
                                                     </p>
 
-                                                    <span className="inline-flex items-center justify-center bg-violet-50 text-violet-700 font-semibold px-4 py-2 rounded-lg">
-                                                        {item.quantity}
-                                                    </span>
+                                                    <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden w-fit">
+
+                                                        {/* Decrease Quantity */}
+                                                        <button
+                                                            className="p-2 text-gray-600 hover:bg-violet-100 hover:text-violet-700 transition"
+
+                                                            onClick={()=>handleUpdateQuantity(item.product._id,"decrement" )}
+                                                        >
+                                                            <Minus size={17} />
+                                                        </button>
+
+                                                        {/* Quantity */}
+                                                        <span className="px-4 font-semibold text-gray-800">
+                                                            {item.quantity}
+                                                        </span>
+
+                                                        {/* Increase Quantity */}
+                                                        <button
+                                                            className="p-2 text-gray-600 hover:bg-violet-100 hover:text-violet-700 transition"
+                                                            onClick={()=>handleUpdateQuantity(item.product._id,"increment" )}
+                                                        >
+                                                            <Plus size={17} />
+                                                        </button>
+
+                                                    </div>
 
                                                 </div>
 

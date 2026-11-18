@@ -1,166 +1,280 @@
+import { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+
 import {
     ShoppingBag,
+    ShoppingCart,
     Search,
     Menu,
     X,
-    UserRound
+    UserRound,
 } from "lucide-react";
-import { useState } from "react";
+
 
 const NavBar = () => {
 
-    const [menuOpen, setMenuOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
+    const [cartCount, setCartCount] = useState(0);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [search, setSearch] = useState("");
 
     const navigate = useNavigate();
 
-    const navLinkStyle = ({ isActive }) =>
-        `transition duration-200 ${isActive
-            ? "text-violet-700 font-semibold"
-            : "text-gray-600 hover:text-violet-700"
-        }`;
 
-    // SEARCH FUNCTION
+    // Fetch cart count
+    const fetchCartCount = async () => {
+
+        try {
+
+            const res = await fetch("http://localhost:5000/cart", {
+                method: "GET",
+                credentials: "include",
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+
+                const items = data.cart?.items || [];
+
+                const totalQuantity = items.reduce(
+                    (total, item) => total + item.quantity,
+                    0
+                );
+
+                setCartCount(totalQuantity);
+
+            }
+
+        } catch (error) {
+
+            console.log("Cart count error:", error);
+
+        }
+
+    };
+
+
+    // Fetch cart count when component mounts
+    useEffect(() => {
+
+        fetchCartCount();
+
+        const handleCartUpdate = () => {
+            fetchCartCount();
+        };
+
+        window.addEventListener("cartUpdated", handleCartUpdate);
+
+        return () => {
+            window.removeEventListener("cartUpdated", handleCartUpdate);
+        };
+
+    }, []);
+
+
+    // Search functionality
     const handleSearch = (e) => {
+
         e.preventDefault();
 
-        const search = searchTerm.trim();
+        if (search.trim()) {
 
-        if (!search) return;
+            navigate(`/products?search=${encodeURIComponent(search.trim())}`);
 
-        navigate(`/products?search=${encodeURIComponent(search)}`);
+            setSearch("");
+            setIsMenuOpen(false);
 
-        setMenuOpen(false);
+        }
+
     };
+
+
+    // Navigation link styling
+    const navLinkStyle = ({ isActive }) =>
+
+        `transition-all duration-200 ${isActive
+            ? "text-blue-600 font-semibold"
+            : "text-gray-600 hover:text-blue-600"
+        }`;
+
 
     return (
 
-        <nav className="bg-white shadow-sm sticky top-0 z-50">
+        <nav className="sticky top-0 z-50 bg-white shadow-sm">
 
-            <div className="max-w-7xl mx-auto px-6 py-4">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between h-20">
+
 
                     {/* LOGO */}
 
-                    <Link to={"/"} className="text-3xl font-extrabold tracking-tight">
+                    <Link
+                        to="/"
+                        className="flex items-center gap-2.5 group"
+                    >
 
-                        <span className="text-violet-700">CART</span>
-                        <span className="text-gray-900">IVA</span>
+                        {/* LOGO ICON */}
+
+                        <div className="bg-gradient-to-br from-violet-600 to-purple-800 
+                    text-white p-2.5 rounded-xl shadow-md
+                    group-hover:shadow-violet-300 
+                    group-hover:scale-105 transition-all duration-300">
+
+                            <ShoppingBag size={27} strokeWidth={2.2} />
+
+                        </div>
+
+
+                        {/* BRAND NAME */}
+
+                        <div className="flex flex-col">
+
+                            <h1 className="text-3xl font-extrabold tracking-tight leading-none">
+
+                                <span className="text-violet-700">CART</span>
+                                <span className="text-gray-900">VIA</span>
+
+                            </h1>
+
+                            <span className="text-[9px] tracking-[3px] font-semibold 
+                         text-gray-400 mt-1">
+                                SHOP YOUR STYLE
+                            </span>
+
+                        </div>
 
                     </Link>
+
 
                     {/* DESKTOP NAVIGATION */}
 
                     <div className="hidden md:flex items-center gap-8">
 
-                        <NavLink to={"/"} className={navLinkStyle}>
+                        <NavLink to="/" className={navLinkStyle}>
                             Home
                         </NavLink>
 
-                        <NavLink to={"/products"} className={navLinkStyle}>
-                            Shop
+                        <NavLink to="/products" className={navLinkStyle}>
+                            Products
                         </NavLink>
 
-                        <NavLink to={"/products"} className={navLinkStyle}>
+                        <NavLink to="/categories" className={navLinkStyle}>
                             Categories
                         </NavLink>
 
                     </div>
 
-                    {/* DESKTOP SEARCH BAR */}
+
+                    {/* DESKTOP SEARCH */}
 
                     <form
                         onSubmit={handleSearch}
-                        className="hidden lg:flex items-center bg-gray-100 rounded-full px-4 py-2 w-64 focus-within:ring-2 focus-within:ring-violet-300 transition"
+                        className="hidden lg:flex items-center bg-gray-100 rounded-full px-4 py-2 w-64"
                     >
+
+                        <Search size={18} className="text-gray-500" />
 
                         <input
                             type="text"
                             placeholder="Search products..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="bg-transparent outline-none px-2 w-full text-sm"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="bg-transparent outline-none px-3 w-full text-sm"
                         />
-
-                        <button type="submit" aria-label="Search products">
-                            <Search
-                                size={19}
-                                className="text-gray-500 hover:text-violet-700 cursor-pointer"
-                            />
-                        </button>
 
                     </form>
 
+
                     {/* RIGHT SIDE */}
 
-                    <div className="hidden md:flex items-center gap-5">
+                    <div className="hidden md:flex items-center gap-6">
+
 
                         {/* CART */}
 
                         <Link
-                            to={"/cart"}
-                            className="relative text-gray-700 hover:text-violet-700 transition"
+                            to="/cart"
+                            className="relative text-gray-700 hover:text-blue-600 transition"
                         >
 
-                            <ShoppingBag size={24} />
+                            <ShoppingCart size={24} />
 
-                            <span className="absolute -top-2 -right-2 bg-violet-700 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                                0
-                            </span>
+                            {cartCount > 0 && (
+
+                                <span className="absolute -top-2 -right-3 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+
+                                    {cartCount > 99 ? "99+" : cartCount}
+
+                                </span>
+
+                            )}
 
                         </Link>
 
-                        {/* LOGIN */}
-
-                        <Link
-                            to={"/login"}
-                            className="text-gray-700 hover:text-violet-700 font-medium"
-                        >
-                            Login
-                        </Link>
-
-                        {/* SIGN UP */}
-
-                        <Link
-                            to={"/register"}
-                            className="bg-violet-700 text-white px-6 py-2.5 rounded-full font-semibold hover:bg-violet-800 transition shadow-md shadow-violet-200"
-                        >
-                            Sign Up
-                        </Link>
 
                         {/* PROFILE */}
 
                         <Link
                             to="/profile"
-                            className="flex items-center gap-2 text-gray-600 hover:text-violet-600 transition"
+                            className="text-gray-700 hover:text-blue-600 transition"
                         >
-                            <UserRound size={20} />
-                            <span>My Profile</span>
+
+                            <UserRound size={24} />
+
+                        </Link>
+
+
+                        {/* LOGIN */}
+
+                        <Link
+                            to="/login"
+                            className="text-gray-600 hover:text-blue-600 font-medium"
+                        >
+
+                            Login
+
+                        </Link>
+
+
+                        {/* REGISTER */}
+
+                        <Link
+                            to="/register"
+                            className="bg-blue-600 text-white px-5 py-2.5 rounded-full hover:bg-blue-700 transition font-medium"
+                        >
+
+                            Register
+
                         </Link>
 
                     </div>
 
+
                     {/* MOBILE MENU BUTTON */}
 
                     <button
-                        className="md:hidden text-gray-800"
-                        onClick={() => setMenuOpen(!menuOpen)}
-                        aria-label="Toggle menu"
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        className="md:hidden text-gray-700"
                     >
 
-                        {menuOpen ? <X size={26} /> : <Menu size={26} />}
+                        {isMenuOpen ? (
+                            <X size={27} />
+                        ) : (
+                            <Menu size={27} />
+                        )}
 
                     </button>
 
                 </div>
 
+
                 {/* MOBILE MENU */}
 
-                {menuOpen && (
+                {isMenuOpen && (
 
-                    <div className="md:hidden mt-5 pb-4 flex flex-col gap-5">
+                    <div className="md:hidden border-t border-gray-100 py-5 space-y-5">
+
 
                         {/* MOBILE SEARCH */}
 
@@ -169,81 +283,106 @@ const NavBar = () => {
                             className="flex items-center bg-gray-100 rounded-full px-4 py-3"
                         >
 
+                            <Search size={18} className="text-gray-500" />
+
                             <input
                                 type="text"
                                 placeholder="Search products..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="bg-transparent outline-none w-full text-sm"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="bg-transparent outline-none px-3 w-full text-sm"
                             />
-
-                            <button type="submit" aria-label="Search products">
-                                <Search size={20} className="text-violet-700" />
-                            </button>
 
                         </form>
 
-                        <NavLink
-                            to={"/"}
-                            className={navLinkStyle}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            Home
-                        </NavLink>
 
-                        <NavLink
-                            to={"/products"}
-                            className={navLinkStyle}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            Shop
-                        </NavLink>
+                        {/* MOBILE LINKS */}
 
-                        <NavLink
-                            to={"/products"}
-                            className={navLinkStyle}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            Categories
-                        </NavLink>
+                        <div className="flex flex-col gap-5">
 
-                        {/* MOBILE CART */}
+                            <NavLink
+                                to="/"
+                                className={navLinkStyle}
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                Home
+                            </NavLink>
 
-                        <Link
-                            to={"/cart"}
-                            onClick={() => setMenuOpen(false)}
-                            className="flex items-center gap-2 text-gray-600 hover:text-violet-600"
-                        >
-                            <ShoppingBag size={20} />
-                            Shopping Cart
-                        </Link>
 
-                        {/* MOBILE PROFILE */}
+                            <NavLink
+                                to="/products"
+                                className={navLinkStyle}
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                Products
+                            </NavLink>
 
-                        <Link
-                            to="/profile"
-                            onClick={() => setMenuOpen(false)}
-                            className="flex items-center gap-2 text-gray-600 hover:text-violet-600"
-                        >
-                            <UserRound size={20} />
-                            My Profile
-                        </Link>
 
-                        <Link
-                            to={"/login"}
-                            onClick={() => setMenuOpen(false)}
-                            className="text-gray-600 hover:text-violet-600"
-                        >
-                            Login
-                        </Link>
+                            <NavLink
+                                to="/categories"
+                                className={navLinkStyle}
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                Categories
+                            </NavLink>
 
-                        <Link
-                            to={"/register"}
-                            onClick={() => setMenuOpen(false)}
-                            className="bg-violet-700 text-white text-center py-3 rounded-full"
-                        >
-                            Sign Up
-                        </Link>
+
+                            {/* MOBILE CART */}
+
+                            <Link
+                                to="/cart"
+                                onClick={() => setIsMenuOpen(false)}
+                                className="flex items-center gap-3 text-gray-600 hover:text-blue-600"
+                            >
+
+                                <ShoppingCart size={20} />
+
+                                Cart ({cartCount})
+
+                            </Link>
+
+
+                            {/* MOBILE PROFILE */}
+
+                            <Link
+                                to="/profile"
+                                onClick={() => setIsMenuOpen(false)}
+                                className="flex items-center gap-3 text-gray-600 hover:text-blue-600"
+                            >
+
+                                <UserRound size={20} />
+
+                                My Profile
+
+                            </Link>
+
+
+                            {/* MOBILE LOGIN */}
+
+                            <Link
+                                to="/login"
+                                onClick={() => setIsMenuOpen(false)}
+                                className="text-gray-600 hover:text-blue-600"
+                            >
+
+                                Login
+
+                            </Link>
+
+
+                            {/* MOBILE REGISTER */}
+
+                            <Link
+                                to="/register"
+                                onClick={() => setIsMenuOpen(false)}
+                                className="bg-blue-600 text-white text-center py-3 rounded-full hover:bg-blue-700 transition"
+                            >
+
+                                Register
+
+                            </Link>
+
+                        </div>
 
                     </div>
 
@@ -254,6 +393,8 @@ const NavBar = () => {
         </nav>
 
     );
+
 };
+
 
 export default NavBar;

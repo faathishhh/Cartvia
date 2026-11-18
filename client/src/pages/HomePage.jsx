@@ -69,9 +69,7 @@ const Home = () => {
 
     // Product states
     const [products, setProducts] = useState([]);
-
     const [loading, setLoading] = useState(true);
-
     const [error, setError] = useState("");
 
 
@@ -86,7 +84,7 @@ const Home = () => {
                 setError("");
 
                 const res = await fetch(
-                    "http://localhost:5000/get-products"
+                    "http://localhost:5000/products"
                 );
 
                 const data = await res.json();
@@ -99,17 +97,16 @@ const Home = () => {
                     );
                 }
 
-                if (data.success) {
+                // Support common backend response formats
+                const productList = Array.isArray(data)
+                    ? data
+                    : data.products || data.data || [];
 
-                    setProducts(data.products || []);
-
-                } else {
-
-                    setError(
-                        data.message || "Unable to load products"
-                    );
-
+                if (!Array.isArray(productList)) {
+                    throw new Error("Invalid products response from server");
                 }
+
+                setProducts(productList);
 
             } catch (error) {
 
@@ -673,14 +670,14 @@ const Home = () => {
                                             <div className="flex items-center gap-3 mt-4">
 
                                                 <span className="text-xl font-extrabold text-violet-700">
-                                                    ₹{finalPrice.toLocaleString("en-IN")}
+                                                    ₹{Number(finalPrice || 0).toLocaleString("en-IN")}
                                                 </span>
 
 
                                                 {hasDiscount && (
 
                                                     <span className="text-sm text-gray-400 line-through">
-                                                        ₹{product.price.toLocaleString("en-IN")}
+                                                        ₹{Number(product.price).toLocaleString("en-IN")}
                                                     </span>
 
                                                 )}

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import {
     ShoppingCart,
@@ -10,6 +10,7 @@ import {
     SlidersHorizontal,
     PackageSearch,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 const Products = () => {
 
@@ -22,8 +23,16 @@ const Products = () => {
 
     // Search, category and wishlist states
     const [search, setSearch] = useState("");
+    const [searchParams, setSearchParams] = useSearchParams();
     const [category, setCategory] = useState("All");
     const [wishlist, setWishlist] = useState([]);
+
+    // Get search value from navbar URL
+    useEffect(() => {
+
+        setSearch(searchParams.get("search") || "");
+
+    }, [searchParams]);
 
     // Fetch products from backend
     const fetchProducts = async () => {
@@ -72,9 +81,12 @@ const Products = () => {
     // Search and category filtering
     const filteredProducts = products.filter((product) => {
 
+        const searchValue = search.trim().toLowerCase();
+
         const matchesSearch =
-            product.productName?.toLowerCase().includes(search.toLowerCase()) ||
-            product.brand?.toLowerCase().includes(search.toLowerCase());
+            product.productName?.toLowerCase().includes(searchValue) ||
+            product.brand?.toLowerCase().includes(searchValue) ||
+            product.category?.toLowerCase().includes(searchValue);
 
         const matchesCategory =
             category === "All" || product.category === category;
@@ -97,7 +109,7 @@ const Products = () => {
     const handleAddToCart = async (product) => {
 
         if (product.stock === 0) {
-            alert("Sorry! This product is out of stock.");
+            toast.error("Sorry! This product is out of stock.");
             return;
         }
 
@@ -126,7 +138,7 @@ const Products = () => {
                 throw new Error(data.message || "Failed to add product");
             }
 
-            alert(`${product.productName} added to cart!`);
+            toast.success(`${product.productName} added to cart!`);
 
         } catch (error) {
             console.error("Add to cart error:", error);
@@ -170,7 +182,17 @@ const Products = () => {
                             type="text"
                             placeholder="Search products or brands..."
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(e) => {
+                                const value = e.target.value;
+
+                                setSearch(value);
+
+                                if (value.trim()) {
+                                    setSearchParams({ search: value });
+                                } else {
+                                    setSearchParams({});
+                                }
+                            }}
                             className="w-full outline-none bg-transparent px-3 text-gray-700"
                         />
 
