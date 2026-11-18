@@ -10,6 +10,9 @@ import cors from "cors"
 
 
 
+//to access .env variables
+dotenv.config()
+
 
 
 const app = express();
@@ -19,14 +22,15 @@ const app = express();
 app.use(express.json());
 
 //it allows your frontend application to communicate with your backend when they run on different origins.
-app.use(cors({ origin: "http://localhost:5173", credentials: true }))
-
-
+app.use(cors({
+    origin: [
+        "http://localhost:5173",
+        "http://localhost:5174"
+    ],
+    credentials: true
+}));
 //to access cookies
 app.use(cookieParser())
-
-//to access .env variables
-dotenv.config()
 
 //establishing mongodb connection
 connectDB()

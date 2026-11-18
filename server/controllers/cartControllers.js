@@ -16,8 +16,15 @@ export const addToCart = async (req, res) => {
 
         if (!isCartExist) {
 
-            const newCart = await Cart.create({ user: user._id, items: [{ product: id, price: price }], totalPrice: price })
-
+            const newCart = await Cart.create({
+                user: user._id,
+                items: [{
+                    product: id,
+                    price: price,
+                    quantity: quantity
+                }],
+                totalPrice: price * quantity
+            });
             return res.status(201).json({ success: true, message: "Item added to cart", newCart })
 
         }
@@ -25,7 +32,12 @@ export const addToCart = async (req, res) => {
         const isProductExist = isCartExist.items.some((item) => item.product == id);
 
         if (!isProductExist) {
-            isCartExist.items.push({ product: id, price: price })
+
+            isCartExist.items.push({
+                product: id,
+                price: price,
+                quantity: quantity
+            });
             isCartExist.totalPrice = isCartExist.items.reduce((acc, item) => acc + (item.price * item.quantity), 0)
             await isCartExist.save()
             return res.status(201).json({ success: true, message: "Item added to cart", isCartExist })
@@ -33,7 +45,7 @@ export const addToCart = async (req, res) => {
 
         isCartExist.items = isCartExist.items.map((item) => {
             if (item.product == id) {
-                item.quantity += 1
+               item.quantity += quantity;
             }
             return item
 

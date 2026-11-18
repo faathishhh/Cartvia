@@ -60,8 +60,8 @@ export const GetUser = async (req, res) => {
     try {
         // console.log("from GetUser:",req.user);
 
-        res.status(200).json({succes:true,user:req.user})
-        
+        res.status(200).json({ succes: true, user: req.user })
+
 
     } catch (error) {
         res.status(500).json({ message: error.message, success: false })
@@ -69,3 +69,18 @@ export const GetUser = async (req, res) => {
 
     }
 }
+
+
+export const logoutUser = async (req, res) => {
+
+    res.clearCookie("token", {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: false,
+    });
+
+    res.status(200).json({
+        message: "Logout successful",
+        success: true,
+    });
+};
