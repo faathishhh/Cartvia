@@ -52,7 +52,6 @@ const Login = () => {
         setError("");
 
         try {
-
             setLoading(true);
 
             const res = await fetch("http://localhost:5000/login", {
@@ -66,42 +65,27 @@ const Login = () => {
 
             const data = await res.json();
 
-            console.log("Login Response:", data);
+            console.log("Complete login response:", data);
+            console.log("User object:", data.user);
 
-
-            // Check HTTP status
-            if (!res.ok) {
-
-                setError(data.message || "Login failed. Please try again.");
-
+            if (!data.user) {
+                setError("User information is missing from the server response.");
                 return;
-
             }
 
-
-            // Check login success
-            if (data.success) {
-
+            if (data.user.role === "admin") {
+                navigate("/admin");
+            } else if (data.user.role === "user") {
                 navigate("/");
-
             } else {
-
-                setError(
-                    data.message || "Login failed. Please try again."
-                );
-
+                setError("Invalid user role.");
             }
 
         } catch (err) {
-
             console.error("Login error:", err);
-
             setError("Unable to connect to the server. Please try again.");
-
         } finally {
-
             setLoading(false);
-
         }
 
     };

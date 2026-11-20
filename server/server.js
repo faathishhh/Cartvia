@@ -6,6 +6,13 @@ import productRoutes from './routes/productRoutes.js'
 import cartRoutes from './routes/cartRoutes.js'
 import cookieParser from 'cookie-parser'
 import cors from "cors"
+import dns from "dns"
+
+
+dns.setServers(["8.8.8.8"])
+
+
+
 
 
 
@@ -23,11 +30,8 @@ app.use(express.json());
 
 //it allows your frontend application to communicate with your backend when they run on different origins.
 app.use(cors({
-    origin: [
-        "http://localhost:5173",
-        "http://localhost:5174"
-    ],
-    credentials: true
+    origin: "http://localhost:5173",
+    credentials: true,
 }));
 //to access cookies
 app.use(cookieParser())

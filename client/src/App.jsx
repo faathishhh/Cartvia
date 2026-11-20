@@ -1,45 +1,53 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 
-import NavBar from "./components/NavBar";
+// Client Pages
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Products from "./pages/Products";
 import Cart from "./pages/Cart";
 import HomePage from "./pages/HomePage";
-import Footer from "./components/Footer";
 import ProductDetails from "./pages/ProductDetails";
 import UserProfile from "./pages/UserProfile";
-import { Toaster } from "react-hot-toast";
+
+// Layouts
+import ClientLayout from "./layouts/ClientLayout";
+import AdminLayout from "./admin/layouts/AdminLayout";
+
+// Admin Pages
+import Dashboard from "./admin/pages/Dashboard";
+import AdminProduct from "./admin/pages/AdminProduct";
+import AddProduct from "./admin/pages/AddProduct";
 
 function App() {
   return (
-    <div>
+    <>
       <Toaster position="top-center" />
-
-      <NavBar />
-
-
 
       <Routes>
 
-        {/* <HomeLayout/> */}
-        
-        <Route path="/" element={<HomePage />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/cart" element={<Cart />} />
+        {/* Shared Authentication */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/products/:id" element={<ProductDetails />} />
-        <Route path="/profile" element={<UserProfile />} />
+
+        {/* Customer Website */}
+        <Route element={<ClientLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/products/:id" element={<ProductDetails />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/profile" element={<UserProfile />} />
+        </Route>
+
+        {/* Admin Dashboard */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="products" element={<AdminProduct />} />
+          <Route path="products/add" element={<AddProduct />} />
+        </Route>
+
       </Routes>
-
-      <Footer />
-
-
-
-    </div>
-
-
+    </>
   );
 }
 

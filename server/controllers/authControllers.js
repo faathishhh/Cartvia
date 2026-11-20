@@ -43,7 +43,16 @@ export const login = async (req, res) => {
         res.cookie("token", token, { maxAge: 60 * 60 * 1000 })//covert ihr into milli second
 
 
-        res.status(200).json({ message: "Login success", success: true })
+        res.status(200).json({
+            message: "Login success",
+            success: true,
+            user: {
+                _id: isExist._id,
+                name: isExist.name,
+                email: isExist.email,
+                role: isExist.role,
+            },
+        });
 
     } catch (error) {
 
