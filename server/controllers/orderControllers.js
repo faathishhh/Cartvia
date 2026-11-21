@@ -23,7 +23,10 @@ export const createOrder = async (req, res) => {
         }
 
         // Check customer address
-        const address = user.address;
+        const address = req.body.shippingAddress || user.address;
+        // Save the latest delivery address to customer account
+        user.address = address;
+        await user.save();
 
         if (
             !address?.fullName ||
@@ -120,6 +123,139 @@ export const createOrder = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: error.message,
+        });
+    }
+};
+
+
+
+// Get All Orders (Admin)
+export const getAllOrders = async (req, res) => {
+    try {
+        const orders = await Order.find()
+            .populate("user", "name email phone")
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            success: true,
+            count: orders.length,
+            orders,
+        });
+
+    } catch (error) {
+        console.error("Get all orders error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+
+// Get Single Order Details (Admin)
+export const getOrderById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const order = await Order.findById(id)
+            .populate("user", "name email phone");
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            order,
+        });
+
+    } catch (error) {
+        console.error("Get order error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+
+// Update Order Status (Admin)
+export const updateOrderStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { orderStatus } = req.body;
+
+        const allowedStatuses = [
+            "Pending",
+            "Confirmed",
+            "Processing",
+            "Shipped",
+            "Delivered",
+            "Cancelled",
+        ];
+
+        if (!allowedStatuses.includes(orderStatus)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid order status",
+            });
+        }
+
+        const order = await Order.findByIdAndUpdate(
+            id,
+            { orderStatus },
+            { new: true, runValidators: true }
+        ).populate("user", "name email phone");
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Order status updated successfully",
+            order,
+        });
+
+    } catch (error) {
+        console.error("Update order status error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+
+// Get logged-in customer's orders
+export const getMyOrders = async (req, res) => {
+    try {
+        const userId = req.user._id;
+
+        const orders = await Order.find({ user: userId })
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: orders.length,
+            orders,
+        });
+
+    } catch (error) {
+        console.error("Get My Orders Error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch your orders",
         });
     }
 };

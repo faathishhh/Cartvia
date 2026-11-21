@@ -4,6 +4,13 @@ import {
     Users,
     Search,
     UserRound,
+    Eye,
+    X,
+    Mail,
+    Phone,
+    ShieldCheck,
+    CalendarDays,
+    User,
 } from "lucide-react";
 
 const Customers = () => {
@@ -12,6 +19,9 @@ const Customers = () => {
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
+    // Selected Customer
+    const [selectedUser, setSelectedUser] = useState(null);
 
     // Fetch Users
     const fetchUsers = async () => {
@@ -29,9 +39,7 @@ const Customers = () => {
             console.log("API Response:", data);
 
             if (!res.ok) {
-                throw new Error(
-                    data.message || "Failed to fetch users"
-                );
+                throw new Error(data.message || "Failed to fetch users");
             }
 
             setUsers(data.users || []);
@@ -45,7 +53,7 @@ const Customers = () => {
         }
     };
 
-    // Load Users When Page Opens
+    // Load Users
     useEffect(() => {
         fetchUsers();
     }, []);
@@ -62,6 +70,17 @@ const Customers = () => {
         );
     });
 
+    // Format Date
+    const formatDate = (date) => {
+        if (!date) return "N/A";
+
+        return new Date(date).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+        });
+    };
+
     return (
         <div className="space-y-6">
 
@@ -74,7 +93,7 @@ const Customers = () => {
                     </h1>
 
                     <p className="text-gray-500 mt-2">
-                        Manage your CARTIVA customers
+                        Manage your CARTVIA customers
                     </p>
                 </div>
 
@@ -115,7 +134,7 @@ const Customers = () => {
                 <div className="p-5 border-b border-gray-200">
 
                     <h2 className="text-lg font-semibold text-gray-800">
-                        All Users ({users.length})
+                        All Users ({filteredUsers.length})
                     </h2>
 
                 </div>
@@ -133,6 +152,7 @@ const Customers = () => {
                                 <th className="px-6 py-4">Role</th>
                                 <th className="px-6 py-4">Status</th>
                                 <th className="px-6 py-4">Joined</th>
+                                <th className="px-6 py-4">Action</th>
                             </tr>
 
                         </thead>
@@ -142,7 +162,7 @@ const Customers = () => {
                             {loading ? (
 
                                 <tr>
-                                    <td colSpan="6" className="text-center py-10 text-gray-500">
+                                    <td colSpan="7" className="text-center py-10 text-gray-500">
                                         Loading users...
                                     </td>
                                 </tr>
@@ -150,7 +170,7 @@ const Customers = () => {
                             ) : error ? (
 
                                 <tr>
-                                    <td colSpan="6" className="text-center py-10 text-red-500">
+                                    <td colSpan="7" className="text-center py-10 text-red-500">
                                         {error}
                                     </td>
                                 </tr>
@@ -158,7 +178,7 @@ const Customers = () => {
                             ) : filteredUsers.length === 0 ? (
 
                                 <tr>
-                                    <td colSpan="6" className="text-center py-16">
+                                    <td colSpan="7" className="text-center py-16">
 
                                         <div className="flex flex-col items-center">
 
@@ -230,6 +250,19 @@ const Customers = () => {
                                                 : "N/A"}
                                         </td>
 
+                                        {/* View Button */}
+                                        <td className="px-6 py-4">
+
+                                            <button
+                                                onClick={() => setSelectedUser(user)}
+                                                className="flex items-center gap-2 text-violet-700 hover:text-violet-900 font-medium text-sm"
+                                            >
+                                                <Eye size={17} />
+                                                View
+                                            </button>
+
+                                        </td>
+
                                     </tr>
 
                                 ))
@@ -243,6 +276,178 @@ const Customers = () => {
                 </div>
 
             </div>
+
+            {/* Customer Details Modal */}
+            {selectedUser && (
+
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                    onClick={() => setSelectedUser(null)}
+                >
+
+                    <div
+                        className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+
+                        {/* Modal Header */}
+                        <div className="bg-gradient-to-r from-violet-600 to-purple-600 p-6 text-white">
+
+                            <div className="flex items-center justify-between">
+
+                                <div>
+                                    <h2 className="text-xl font-bold">
+                                        Customer Details
+                                    </h2>
+
+                                    <p className="text-violet-100 text-sm mt-1">
+                                        Complete customer information
+                                    </p>
+                                </div>
+
+                                <button
+                                    onClick={() => setSelectedUser(null)}
+                                    className="p-2 rounded-lg hover:bg-white/20"
+                                >
+                                    <X size={22} />
+                                </button>
+
+                            </div>
+
+                            {/* User Avatar */}
+                            <div className="flex items-center gap-4 mt-6">
+
+                                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                                    <UserRound size={32} />
+                                </div>
+
+                                <div>
+                                    <h3 className="text-xl font-semibold">
+                                        {selectedUser.name || "N/A"}
+                                    </h3>
+
+                                    <p className="text-violet-100 text-sm">
+                                        {selectedUser.role || "N/A"}
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        {/* Customer Information */}
+                        <div className="p-6 space-y-5">
+
+                            <div className="flex items-center gap-4">
+
+                                <div className="bg-violet-100 p-3 rounded-xl">
+                                    <Mail className="text-violet-700" size={20} />
+                                </div>
+
+                                <div>
+                                    <p className="text-xs text-gray-400">
+                                        Email Address
+                                    </p>
+
+                                    <p className="text-gray-800 font-medium break-all">
+                                        {selectedUser.email || "N/A"}
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            <div className="flex items-center gap-4">
+
+                                <div className="bg-blue-100 p-3 rounded-xl">
+                                    <Phone className="text-blue-700" size={20} />
+                                </div>
+
+                                <div>
+                                    <p className="text-xs text-gray-400">
+                                        Phone Number
+                                    </p>
+
+                                    <p className="text-gray-800 font-medium">
+                                        {selectedUser.phone || "Not provided"}
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            <div className="flex items-center gap-4">
+
+                                <div className="bg-purple-100 p-3 rounded-xl">
+                                    <ShieldCheck className="text-purple-700" size={20} />
+                                </div>
+
+                                <div>
+                                    <p className="text-xs text-gray-400">
+                                        Account Role
+                                    </p>
+
+                                    <p className="text-gray-800 font-medium capitalize">
+                                        {selectedUser.role || "N/A"}
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            <div className="flex items-center gap-4">
+
+                                <div className="bg-green-100 p-3 rounded-xl">
+                                    <User className="text-green-700" size={20} />
+                                </div>
+
+                                <div>
+                                    <p className="text-xs text-gray-400">
+                                        Account Status
+                                    </p>
+
+                                    <span
+                                        className={`text-sm font-semibold ${selectedUser.isBlocked
+                                                ? "text-red-600"
+                                                : "text-green-600"
+                                            }`}
+                                    >
+                                        {selectedUser.isBlocked ? "Blocked" : "Active"}
+                                    </span>
+                                </div>
+
+                            </div>
+
+                            <div className="flex items-center gap-4">
+
+                                <div className="bg-orange-100 p-3 rounded-xl">
+                                    <CalendarDays className="text-orange-700" size={20} />
+                                </div>
+
+                                <div>
+                                    <p className="text-xs text-gray-400">
+                                        Joined Date
+                                    </p>
+
+                                    <p className="text-gray-800 font-medium">
+                                        {formatDate(selectedUser.createdAt)}
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            {/* Close Button */}
+                            <button
+                                onClick={() => setSelectedUser(null)}
+                                className="w-full bg-violet-600 hover:bg-violet-700 text-white py-3 rounded-xl font-semibold transition mt-4"
+                            >
+                                Close
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            )}
 
         </div>
     );

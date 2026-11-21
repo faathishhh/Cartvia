@@ -21,6 +21,10 @@ import AddProduct from "./admin/pages/AddProduct";
 import Customers from "./admin/pages/Customers";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import Categories from "./pages/Categories";
+import Checkout from "./pages/Checkout";
+import OrderSuccess from "./pages/OrderSuccess";
+import Orders from "./admin/pages/Orders";
+import MyOrders from "./pages/MyOrders";
 
 function App() {
   return (
@@ -41,6 +45,9 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/categories" element={<Categories />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-success" element={<OrderSuccess />} />
+          <Route path="/my-orders" element={<MyOrders />} />
         </Route>
 
         {/* Protected Admin Dashboard */}
@@ -50,6 +57,7 @@ function App() {
             <Route path="products" element={<AdminProduct />} />
             <Route path="products/add" element={<AddProduct />} />
             <Route path="customers" element={<Customers />} />
+            <Route path="orders" element={<Orders />} />
           </Route>
         </Route>
 

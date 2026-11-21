@@ -9,6 +9,7 @@ import {
     Menu,
     X,
     UserRound,
+    Package,
 } from "lucide-react";
 
 
@@ -23,9 +24,7 @@ const NavBar = () => {
 
     // Fetch cart count
     const fetchCartCount = async () => {
-
         try {
-
             const res = await fetch("http://localhost:5000/cart", {
                 method: "GET",
                 credentials: "include",
@@ -34,7 +33,6 @@ const NavBar = () => {
             const data = await res.json();
 
             if (res.ok && data.success) {
-
                 const items = data.cart?.items || [];
 
                 const totalQuantity = items.reduce(
@@ -43,21 +41,16 @@ const NavBar = () => {
                 );
 
                 setCartCount(totalQuantity);
-
             }
 
         } catch (error) {
-
             console.log("Cart count error:", error);
-
         }
-
     };
 
 
     // Fetch cart count when component mounts
     useEffect(() => {
-
         fetchCartCount();
 
         const handleCartUpdate = () => {
@@ -75,9 +68,7 @@ const NavBar = () => {
 
     // Logout functionality
     const handleLogout = async () => {
-
         try {
-
             const res = await fetch("http://localhost:5000/logout", {
                 method: "POST",
                 credentials: "include",
@@ -86,51 +77,38 @@ const NavBar = () => {
             const data = await res.json();
 
             if (res.ok) {
-
                 toast.success("Logged out successfully");
 
                 setCartCount(0);
                 setIsMenuOpen(false);
 
                 navigate("/login");
-
             } else {
-
                 toast.error(data.message || "Logout failed");
-
             }
 
         } catch (error) {
-
             console.log("Logout error:", error);
-
             toast.error("Something went wrong");
-
         }
-
     };
 
 
     // Search functionality
     const handleSearch = (e) => {
-
         e.preventDefault();
 
         if (search.trim()) {
-
             navigate(`/products?search=${encodeURIComponent(search.trim())}`);
 
             setSearch("");
             setIsMenuOpen(false);
-
         }
-
     };
 
 
     // Navigation link styling
     const navLinkStyle = ({ isActive }) =>
-
         `transition-all duration-200 ${isActive
             ? "text-blue-600 font-semibold"
             : "text-gray-600 hover:text-blue-600"
@@ -153,19 +131,15 @@ const NavBar = () => {
                         className="flex items-center gap-2.5 group"
                     >
 
-                        {/* LOGO ICON */}
-
                         <div className="bg-gradient-to-br from-violet-600 to-purple-800 
-                    text-white p-2.5 rounded-xl shadow-md
-                    group-hover:shadow-violet-300 
-                    group-hover:scale-105 transition-all duration-300">
+                            text-white p-2.5 rounded-xl shadow-md
+                            group-hover:shadow-violet-300 
+                            group-hover:scale-105 transition-all duration-300">
 
                             <ShoppingBag size={27} strokeWidth={2.2} />
 
                         </div>
 
-
-                        {/* BRAND NAME */}
 
                         <div className="flex flex-col">
 
@@ -176,8 +150,7 @@ const NavBar = () => {
 
                             </h1>
 
-                            <span className="text-[9px] tracking-[3px] font-semibold 
-                         text-gray-400 mt-1">
+                            <span className="text-[9px] tracking-[3px] font-semibold text-gray-400 mt-1">
                                 SHOP YOUR STYLE
                             </span>
 
@@ -200,6 +173,10 @@ const NavBar = () => {
 
                         <NavLink to="/categories" className={navLinkStyle}>
                             Categories
+                        </NavLink>
+
+                        <NavLink to="/my-orders" className={navLinkStyle}>
+                            My Orders
                         </NavLink>
 
                     </div>
@@ -240,13 +217,9 @@ const NavBar = () => {
                             <ShoppingCart size={24} />
 
                             {cartCount > 0 && (
-
                                 <span className="absolute -top-2 -right-3 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-
                                     {cartCount > 99 ? "99+" : cartCount}
-
                                 </span>
-
                             )}
 
                         </Link>
@@ -258,9 +231,7 @@ const NavBar = () => {
                             to="/profile"
                             className="text-gray-700 hover:text-blue-600 transition"
                         >
-
                             <UserRound size={24} />
-
                         </Link>
 
 
@@ -272,7 +243,6 @@ const NavBar = () => {
                         >
                             Logout
                         </button>
-
 
                     </div>
 
@@ -353,6 +323,18 @@ const NavBar = () => {
                             </NavLink>
 
 
+                            {/* MOBILE MY ORDERS */}
+
+                            <NavLink
+                                to="/my-orders"
+                                className="flex items-center gap-3 text-gray-600 hover:text-blue-600"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                <Package size={20} />
+                                My Orders
+                            </NavLink>
+
+
                             {/* MOBILE CART */}
 
                             <Link
@@ -360,11 +342,8 @@ const NavBar = () => {
                                 onClick={() => setIsMenuOpen(false)}
                                 className="flex items-center gap-3 text-gray-600 hover:text-blue-600"
                             >
-
                                 <ShoppingCart size={20} />
-
                                 Cart ({cartCount})
-
                             </Link>
 
 
@@ -375,11 +354,8 @@ const NavBar = () => {
                                 onClick={() => setIsMenuOpen(false)}
                                 className="flex items-center gap-3 text-gray-600 hover:text-blue-600"
                             >
-
                                 <UserRound size={20} />
-
                                 My Profile
-
                             </Link>
 
 
@@ -391,7 +367,6 @@ const NavBar = () => {
                             >
                                 Logout
                             </button>
-
 
                         </div>
 

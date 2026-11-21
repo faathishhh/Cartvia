@@ -103,15 +103,15 @@ const Cart = () => {
 
     //update quantity
 
-    const handleUpdateQuantity=async(prodId,action)=>{
+    const handleUpdateQuantity = async (prodId, action) => {
         try {
-            const res=await fetch(`http://localhost:5000/cart/${prodId}/${action}`,{method:"PUT" ,credentials:"include"})
-            const data=await res.json()
+            const res = await fetch(`http://localhost:5000/cart/${prodId}/${action}`, { method: "PUT", credentials: "include" })
+            const data = await res.json()
             console.log(data);
             fetchCart()
-            
+
         } catch (error) {
-            
+
         }
     }
 
@@ -370,7 +370,7 @@ const Cart = () => {
                                                         <button
                                                             className="p-2 text-gray-600 hover:bg-violet-100 hover:text-violet-700 transition"
 
-                                                            onClick={()=>handleUpdateQuantity(item.product._id,"decrement" )}
+                                                            onClick={() => handleUpdateQuantity(item.product._id, "decrement")}
                                                         >
                                                             <Minus size={17} />
                                                         </button>
@@ -383,7 +383,7 @@ const Cart = () => {
                                                         {/* Increase Quantity */}
                                                         <button
                                                             className="p-2 text-gray-600 hover:bg-violet-100 hover:text-violet-700 transition"
-                                                            onClick={()=>handleUpdateQuantity(item.product._id,"increment" )}
+                                                            onClick={() => handleUpdateQuantity(item.product._id, "increment")}
                                                         >
                                                             <Plus size={17} />
                                                         </button>
@@ -524,14 +524,12 @@ const Cart = () => {
 
 
                             {/* Checkout Button */}
-
-                            <button
-                                disabled
-                                className="w-full bg-violet-600 text-white py-3.5 rounded-xl font-semibold opacity-60 cursor-not-allowed"
+                            <Link
+                                to="/checkout"
+                                className="block w-full text-center bg-violet-600 hover:bg-violet-700 text-white py-3.5 rounded-xl font-semibold transition"
                             >
-                                Checkout Coming Soon
-                            </button>
-
+                                Proceed to Checkout
+                            </Link>
 
 
                             {/* Benefits */}

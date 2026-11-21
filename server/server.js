@@ -5,6 +5,7 @@ import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
+import orderRoutes from "./routes/orderRoutes.js";
 
 import cookieParser from 'cookie-parser';
 import cors from "cors";
@@ -72,6 +73,7 @@ const startServer = async () => {
         app.use(authRoutes);
         app.use(productRoutes);
         app.use(cartRoutes);
+        app.use(orderRoutes);
 
         app.listen(5000, () => {
             console.log("Server is running on port 5000");
