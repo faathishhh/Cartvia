@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import {
     ShoppingBag,
@@ -70,6 +71,44 @@ const NavBar = () => {
         };
 
     }, []);
+
+
+    // Logout functionality
+    const handleLogout = async () => {
+
+        try {
+
+            const res = await fetch("http://localhost:5000/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+
+                toast.success("Logged out successfully");
+
+                setCartCount(0);
+                setIsMenuOpen(false);
+
+                navigate("/login");
+
+            } else {
+
+                toast.error(data.message || "Logout failed");
+
+            }
+
+        } catch (error) {
+
+            console.log("Logout error:", error);
+
+            toast.error("Something went wrong");
+
+        }
+
+    };
 
 
     // Search functionality
@@ -225,28 +264,15 @@ const NavBar = () => {
                         </Link>
 
 
-                        {/* LOGIN */}
+                        {/* LOGOUT */}
 
-                        <Link
-                            to="/login"
+                        <button
+                            onClick={handleLogout}
                             className="text-gray-600 hover:text-blue-600 font-medium"
                         >
+                            Logout
+                        </button>
 
-                            Login
-
-                        </Link>
-
-
-                        {/* REGISTER */}
-
-                        <Link
-                            to="/register"
-                            className="bg-blue-600 text-white px-5 py-2.5 rounded-full hover:bg-blue-700 transition font-medium"
-                        >
-
-                            Register
-
-                        </Link>
 
                     </div>
 
@@ -357,30 +383,15 @@ const NavBar = () => {
                             </Link>
 
 
-                            {/* MOBILE LOGIN */}
+                            {/* MOBILE LOGOUT */}
 
-                            <Link
-                                to="/login"
-                                onClick={() => setIsMenuOpen(false)}
-                                className="text-gray-600 hover:text-blue-600"
+                            <button
+                                onClick={handleLogout}
+                                className="text-left text-gray-600 hover:text-blue-600"
                             >
+                                Logout
+                            </button>
 
-                                Login
-
-                            </Link>
-
-
-                            {/* MOBILE REGISTER */}
-
-                            <Link
-                                to="/register"
-                                onClick={() => setIsMenuOpen(false)}
-                                className="bg-blue-600 text-white text-center py-3 rounded-full hover:bg-blue-700 transition"
-                            >
-
-                                Register
-
-                            </Link>
 
                         </div>
 

@@ -1,6 +1,6 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import {
     ShoppingBag,
@@ -10,84 +10,81 @@ import {
     EyeOff,
 } from "lucide-react";
 
-import API from "../services/api";
-
 const Login = () => {
 
     const navigate = useNavigate();
 
-    const [showPassword, setShowPassword] = useState(false);
-
-    // Form data
     const [formData, setFormData] = useState({
         email: "",
         password: "",
     });
 
-    // Loading and messages
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-
-    // HANDLE INPUT CHANGE
-
     const handleChange = (e) => {
-
         const { name, value } = e.target;
 
         setFormData({
             ...formData,
             [name]: value,
         });
-
     };
 
-
-    // HANDLE FORM SUBMISSION
-
     const handleSubmit = async (e) => {
-
         e.preventDefault();
 
+        setLoading(true);
         setError("");
 
         try {
-            setLoading(true);
-
-            const res = await fetch("http://localhost:5000/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                credentials: "include",
-                body: JSON.stringify(formData),
-            });
+            const res = await fetch(
+                "http://localhost:5000/login",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        ...formData,
+                        email: formData.email.trim(),
+                    }),
+                }
+            );
 
             const data = await res.json();
 
-            console.log("Complete login response:", data);
-            console.log("User object:", data.user);
-
-            if (!data.user) {
-                setError("User information is missing from the server response.");
-                return;
+            if (!res.ok) {
+                throw new Error(
+                    data.message || "Login failed"
+                );
             }
+
+            if (!data.success || !data.user) {
+                throw new Error(
+                    "User information is missing from the server response."
+                );
+            }
+
+            toast.success("Login successful!");
 
             if (data.user.role === "admin") {
                 navigate("/admin");
             } else if (data.user.role === "user") {
                 navigate("/");
             } else {
-                setError("Invalid user role.");
+                throw new Error("Invalid user role");
             }
 
-        } catch (err) {
-            console.error("Login error:", err);
-            setError("Unable to connect to the server. Please try again.");
+        } catch (error) {
+            setError(error.message);
+            toast.error(error.message);
+
         } finally {
             setLoading(false);
         }
-
     };
 
     return (
@@ -95,7 +92,6 @@ const Login = () => {
         <div className="min-h-screen bg-[#F8F7FC] flex items-center justify-center p-6">
 
             <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl overflow-hidden grid md:grid-cols-2">
-
 
                 {/* LEFT SECTION */}
 
@@ -113,10 +109,12 @@ const Login = () => {
 
                     </div>
 
-
                     <div>
 
-                        <ShoppingBag size={55} className="mb-8 text-violet-200" />
+                        <ShoppingBag
+                            size={55}
+                            className="mb-8 text-violet-200"
+                        />
 
                         <h2 className="text-4xl font-bold leading-tight">
                             Welcome Back!
@@ -132,16 +130,12 @@ const Login = () => {
 
                     </div>
 
-
                     <p className="text-sm text-violet-300">
                         © 2026 CARTIVA. All rights reserved.
                     </p>
 
                 </div>
 
-
-
-                {/* RIGHT SECTION */}
 
                 <div className="p-8 md:p-12 flex flex-col justify-center">
 
@@ -157,10 +151,10 @@ const Login = () => {
 
                     </div>
 
-
-
-                    <form onSubmit={handleSubmit} className="space-y-6">
-
+                    <form
+                        onSubmit={handleSubmit}
+                        className="space-y-6"
+                    >
 
                         {/* EMAIL */}
 
@@ -172,7 +166,10 @@ const Login = () => {
 
                             <div className="flex items-center border border-gray-200 rounded-xl px-4 focus-within:ring-2 focus-within:ring-violet-500">
 
-                                <Mail size={19} className="text-gray-400" />
+                                <Mail
+                                    size={19}
+                                    className="text-gray-400"
+                                />
 
                                 <input
                                     type="email"
@@ -189,9 +186,6 @@ const Login = () => {
                         </div>
 
 
-
-                        {/* PASSWORD */}
-
                         <div>
 
                             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -200,10 +194,17 @@ const Login = () => {
 
                             <div className="flex items-center border border-gray-200 rounded-xl px-4 focus-within:ring-2 focus-within:ring-violet-500">
 
-                                <Lock size={19} className="text-gray-400" />
+                                <Lock
+                                    size={19}
+                                    className="text-gray-400"
+                                />
 
                                 <input
-                                    type={showPassword ? "text" : "password"}
+                                    type={
+                                        showPassword
+                                            ? "text"
+                                            : "password"
+                                    }
                                     name="password"
                                     placeholder="Enter your password"
                                     value={formData.password}
@@ -214,7 +215,9 @@ const Login = () => {
 
                                 <button
                                     type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
+                                    onClick={() =>
+                                        setShowPassword(!showPassword)
+                                    }
                                     className="text-gray-400 hover:text-violet-700"
                                 >
 
@@ -231,9 +234,6 @@ const Login = () => {
                         </div>
 
 
-
-                        {/* FORGOT PASSWORD */}
-
                         <div className="flex justify-end">
 
                             <Link
@@ -246,9 +246,6 @@ const Login = () => {
                         </div>
 
 
-
-                        {/* ERROR MESSAGE */}
-
                         {error && (
 
                             <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">
@@ -258,25 +255,21 @@ const Login = () => {
                         )}
 
 
-
-                        {/* LOGIN BUTTON */}
-
                         <button
                             type="submit"
                             disabled={loading}
                             className="w-full bg-violet-700 text-white py-3.5 rounded-xl font-semibold hover:bg-violet-800 transition shadow-lg shadow-violet-200 disabled:bg-violet-400 disabled:cursor-not-allowed"
                         >
 
-                            {loading ? "Signing In..." : "Sign In"}
+                            {loading
+                                ? "Signing In..."
+                                : "Sign In"
+                            }
 
                         </button>
 
-
                     </form>
 
-
-
-                    {/* REGISTER LINK */}
 
                     <p className="text-center text-gray-500 mt-7">
 
@@ -298,7 +291,6 @@ const Login = () => {
         </div>
 
     );
-
 };
 
 export default Login;

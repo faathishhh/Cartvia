@@ -1,49 +1,107 @@
 import User from "../models/userModel.js"
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken'
+import mongoose from "mongoose";
 
 
 
 
 export const register = async (req, res) => {
     try {
+        const { name, email, password, phone } = req.body;
 
-        const user = req.body
+        const existingUser = await User.findOne({
+            email: email.trim()
+        });
 
-        const newUser = await User.create(user);
+        if (existingUser) {
+            return res.status(409).json({
+                success: false,
+                message: "Email already registered"
+            });
+        }
 
-        res.status(201).json({ message: "registration completed", success: true, newUser })
+        const newUser = await User.create({
+            name,
+            email,
+            password,
+            phone,
+            role: "user"
+        });
+
+        return res.status(201).json({
+            success: true,
+            message: "Registration completed",
+            user: {
+                _id: newUser._id,
+                name: newUser.name,
+                email: newUser.email,
+                role: newUser.role
+            }
+        });
 
     } catch (error) {
-        res.status(500).json({ message: error.message, success: false })
-
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
     }
-
-}
+};
 
 export const login = async (req, res) => {
     try {
+        const { email, password } = req.body;
 
-        const { email, password } = req.body
+        const loginEmail = email.trim();
 
-        const isExist = await User.findOne({ email: email })
+        console.log("Login email:", loginEmail);
+
+        const isExist = await User.findOne({
+            email: {
+                $regex: `^${loginEmail.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+                $options: "i",
+            },
+        });
+
+        console.log("Found user:", isExist ? isExist.email : null);
 
         if (!isExist) {
-            return res.status(404).json({ success: false, message: "user not found!" })
+            return res.status(404).json({
+                success: false,
+                message: "User not found!",
+            });
         }
-        const auth = await bcrypt.compare(password, isExist.password);
+
+        const auth = await bcrypt.compare(
+            password,
+            isExist.password
+        );
 
         if (!auth) {
-            return res.status(401).json({ message: "incorrect password!", success: false })
+            return res.status(401).json({
+                success: false,
+                message: "Incorrect password!",
+            });
         }
 
-        const token = jwt.sign({ id: isExist._id, email: isExist.email, role: isExist.role }, process.env.JWT_SECRET, { expiresIn: "1hr" })
-        console.log(token);
+        const token = jwt.sign(
+            {
+                id: isExist._id,
+                email: isExist.email,
+                role: isExist.role,
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: "1hr" }
+        );
 
-        res.cookie("token", token, { maxAge: 60 * 60 * 1000 })//covert ihr into milli second
+        res.cookie("token", token, {
+            httpOnly: true,
+            maxAge: 60 * 60 * 1000,
+            sameSite: "lax",
+            secure: false,
+        });
 
-
-        res.status(200).json({
+        return res.status(200).json({
             message: "Login success",
             success: true,
             user: {
@@ -55,13 +113,12 @@ export const login = async (req, res) => {
         });
 
     } catch (error) {
-
-        res.status(500).json({ message: error.message, success: false })
-
-
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
-
-}
+};
 
 
 

@@ -18,6 +18,9 @@ import AdminLayout from "./admin/layouts/AdminLayout";
 import Dashboard from "./admin/pages/Dashboard";
 import AdminProduct from "./admin/pages/AdminProduct";
 import AddProduct from "./admin/pages/AddProduct";
+import Customers from "./admin/pages/Customers";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
+import Categories from "./pages/Categories";
 
 function App() {
   return (
@@ -37,13 +40,17 @@ function App() {
           <Route path="/products/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/profile" element={<UserProfile />} />
+          <Route path="/categories" element={<Categories />} />
         </Route>
 
-        {/* Admin Dashboard */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="products" element={<AdminProduct />} />
-          <Route path="products/add" element={<AddProduct />} />
+        {/* Protected Admin Dashboard */}
+        <Route element={<AdminProtectedRoute />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="products" element={<AdminProduct />} />
+            <Route path="products/add" element={<AddProduct />} />
+            <Route path="customers" element={<Customers />} />
+          </Route>
         </Route>
 
       </Routes>
