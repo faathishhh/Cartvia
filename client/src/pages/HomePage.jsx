@@ -16,6 +16,7 @@ import {
     Gift,
     CheckCircle,
 } from "lucide-react";
+import API_URL from "../config/api";
 
 // CARTVIA Categories
 const categories = [
@@ -120,7 +121,7 @@ const Home = () => {
                 setError("");
 
                 const res = await fetch(
-                    "http://localhost:5000/products"
+                    `${API_URL}/products`
                 );
 
                 const data = await res.json();

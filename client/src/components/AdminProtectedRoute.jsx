@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
+import API_URL from "../config/api";
+
 
 const AdminProtectedRoute = () => {
 
@@ -9,7 +11,7 @@ const AdminProtectedRoute = () => {
 
         const checkAdmin = async () => {
             try {
-                const res = await fetch("http://localhost:5000/me", {
+                const res = await fetch(`${API_URL}/me`, {
                     method: "GET",
                     credentials: "include",
                 });

@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 
 import toast from "react-hot-toast";
+import API_URL from "../../config/api";
+
 
 
 const AdminProduct = () => {
@@ -112,7 +114,7 @@ const AdminProduct = () => {
 
 
             const res = await fetch(
-                `http://localhost:5000/products/${editProduct._id}`,
+                `${API_URL}/products/${editProduct._id}`,
                 {
                     method: "PUT",
 
@@ -216,7 +218,7 @@ const AdminProduct = () => {
         try {
 
             const res = await fetch(
-                `http://localhost:5000/products/${id}`,
+                `${API_URL}/products/${id}`,
                 {
                     method: "DELETE",
                     credentials: "include",
@@ -253,7 +255,7 @@ const AdminProduct = () => {
 
             setLoading(true);
 
-            const res = await fetch("http://localhost:5000/products");
+            const res = await fetch(`${API_URL}/products`);
 
             const data = await res.json();
 

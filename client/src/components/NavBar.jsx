@@ -11,6 +11,8 @@ import {
     UserRound,
     Package,
 } from "lucide-react";
+import API_URL from "../config/api";
+
 
 
 const NavBar = () => {
@@ -25,7 +27,7 @@ const NavBar = () => {
     // Fetch cart count
     const fetchCartCount = async () => {
         try {
-            const res = await fetch("http://localhost:5000/cart", {
+            const res = await fetch(`${API_URL}/cart`, {
                 method: "GET",
                 credentials: "include",
             });
@@ -69,7 +71,7 @@ const NavBar = () => {
     // Logout functionality
     const handleLogout = async () => {
         try {
-            const res = await fetch("http://localhost:5000/logout", {
+            const res = await fetch(`${API_URL}/logout`, {
                 method: "POST",
                 credentials: "include",
             });

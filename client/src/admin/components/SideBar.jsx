@@ -15,6 +15,9 @@ import {
     UserRound
 } from "lucide-react";
 
+import API_URL from "../../config/api";
+
+
 const SideBar = () => {
 
     const navigate = useNavigate();
@@ -64,7 +67,7 @@ const SideBar = () => {
 
     const handleLogout = async () => {
         try {
-            const res = await fetch("http://localhost:5000/logout", {
+            const res = await fetch(`${API_URL}/logout`, {
                 method: "POST",
                 credentials: "include",
             });

@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Plus, Save } from "lucide-react";
 import toast from "react-hot-toast";
+import API_URL from "../../config/api";
+
 
 
 
@@ -73,7 +75,7 @@ const AddProduct = () => {
                 return;
             }
 
-            const res = await fetch("http://localhost:5000/products", {
+            const res = await fetch(`${API_URL}/products`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

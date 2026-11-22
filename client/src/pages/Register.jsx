@@ -10,6 +10,7 @@ import {
     Lock,
     Phone,
 } from "lucide-react";
+import API_URL from "../config/api";
 
 import { useState } from "react";
 
@@ -85,7 +86,7 @@ const Register = () => {
             setLoading(true);
 
             // Send data to backend using Fetch API
-            const res = await fetch("http://localhost:5000/register", {
+            const res = await fetch(`${API_URL}/register`, {
 
                 method: "POST",
 

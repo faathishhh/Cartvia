@@ -14,6 +14,7 @@ import {
     ArrowLeft,
     Check,
 } from "lucide-react";
+import API_URL from "../config/api";
 
 
 const ProductDetails = () => {
@@ -59,7 +60,7 @@ const ProductDetails = () => {
 
 
                 const res = await fetch(
-                    "http://localhost:5000/products"
+                    `${API_URL}/products`
                 );
 
                 const data = await res.json();
@@ -270,7 +271,7 @@ const ProductDetails = () => {
             console.log("Adding product:", product._id);
             console.log("Price:", finalPrice);
 
-            const res = await fetch("http://localhost:5000/add-to-cart", {
+            const res = await fetch(`${API_URL}/add-to-cart`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

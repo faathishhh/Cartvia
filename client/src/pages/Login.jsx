@@ -9,6 +9,7 @@ import {
     Eye,
     EyeOff,
 } from "lucide-react";
+import API_URL from "../config/api";
 
 const Login = () => {
 
@@ -40,7 +41,7 @@ const Login = () => {
 
         try {
             const res = await fetch(
-                "http://localhost:5000/login",
+                `${API_URL}/login`,
                 {
                     method: "POST",
                     headers: {

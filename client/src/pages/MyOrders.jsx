@@ -9,6 +9,7 @@ import {
     MapPin,
     CreditCard,
 } from "lucide-react";
+import API_URL from "../config/api";
 
 const MyOrders = () => {
     const [orders, setOrders] = useState([]);
@@ -19,7 +20,7 @@ const MyOrders = () => {
     const fetchOrders = async () => {
         try {
             const response = await fetch(
-                "http://localhost:5000/my-orders",
+                `${API_URL}/my-orders`,
                 {
                     credentials: "include",
                 }

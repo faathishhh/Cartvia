@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import toast from "react-hot-toast";
+import API_URL from "../config/api";
 
 const Checkout = () => {
 
@@ -34,7 +35,7 @@ const Checkout = () => {
     // Fetch Cart
     const fetchCart = async () => {
         try {
-            const res = await fetch("http://localhost:5000/cart", {
+            const res = await fetch(`${API_URL}/cart`, {
                 credentials: "include",
             });
 
@@ -96,7 +97,7 @@ const Checkout = () => {
         try {
             setPlacingOrder(true);
 
-            const res = await fetch("http://localhost:5000/orders", {
+            const res = await fetch(`${API_URL}/orders`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

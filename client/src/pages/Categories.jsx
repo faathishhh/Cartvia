@@ -3,6 +3,7 @@ import React from 'react'
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { PackageSearch } from "lucide-react";
+import API_URL from "../config/api";
 
 const Categories = () => {
 
@@ -16,7 +17,7 @@ const Categories = () => {
       setLoading(true);
       setError("");
 
-      const res = await fetch("http://localhost:5000/products");
+      const res = await fetch(`${API_URL}/products`);
       const data = await res.json();
 
       if (!res.ok) {

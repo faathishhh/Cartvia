@@ -13,6 +13,8 @@ import {
     XCircle,
     AlertTriangle,
 } from "lucide-react";
+import API_URL from "../../config/api";
+
 
 const Dashboard = () => {
 
@@ -43,15 +45,15 @@ const Dashboard = () => {
             setError("");
 
             const [productRes, userRes, orderRes] = await Promise.all([
-                fetch("http://localhost:5000/products", {
+                fetch(`${API_URL}/products`, {
                     credentials: "include",
                 }),
 
-                fetch("http://localhost:5000/users", {
+                fetch(`${API_URL}/users`, {
                     credentials: "include",
                 }),
 
-                fetch("http://localhost:5000/admin/orders", {
+                fetch(`${API_URL}/admin/orders`, {
                     credentials: "include",
                 }),
             ]);

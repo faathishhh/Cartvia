@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 
 import toast from "react-hot-toast";
+import API_URL from "../config/api";
+
 
 const Cart = () => {
 
@@ -39,7 +41,7 @@ const Cart = () => {
             setLoading(true);
             setError("");
 
-            const res = await fetch("http://localhost:5000/cart", {
+            const res = await fetch(`${API_URL}/cart`, {
                 method: "GET",
                 credentials: "include",
             });
@@ -82,7 +84,7 @@ const Cart = () => {
 
     const handleRemoveFromCart = async (prodId) => {
         try {
-            const res = await fetch(`http://localhost:5000/cart/${prodId}`, { method: "DELETE", credentials: "include" })
+            const res = await fetch(`${API_URL}/cart/${prodId}`, { method: "DELETE", credentials: "include" })
             const data = await res.json()
             console.log(data);
             toast.success("Item removed from cart")
@@ -105,7 +107,7 @@ const Cart = () => {
 
     const handleUpdateQuantity = async (prodId, action) => {
         try {
-            const res = await fetch(`http://localhost:5000/cart/${prodId}/${action}`, { method: "PUT", credentials: "include" })
+            const res = await fetch(`${API_URL}/cart/${prodId}/${action}`, { method: "PUT", credentials: "include" })
             const data = await res.json()
             console.log(data);
             fetchCart()

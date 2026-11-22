@@ -10,6 +10,8 @@ import {
     CreditCard,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import API_URL from "../../config/api";
+
 
 const Orders = () => {
     const [orders, setOrders] = useState([]);
@@ -21,7 +23,7 @@ const Orders = () => {
     const fetchOrders = async () => {
         try {
             const response = await fetch(
-                "http://localhost:5000/admin/orders",
+                `${API_URL}/admin/orders`,
                 {
                     credentials: "include",
                 }
@@ -50,7 +52,7 @@ const Orders = () => {
     const handleStatusChange = async (orderId, newStatus) => {
         try {
             const response = await fetch(
-                `http://localhost:5000/admin/orders/${orderId}/status`,
+                `${API_URL}/admin/orders/${orderId}/status`,
                 {
                     method: "PATCH",
                     headers: {

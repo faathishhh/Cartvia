@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { User, Mail, Phone, ShieldCheck, IdCard, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import API_URL from "../config/api";
 
 const UserProfile = () => {
 
@@ -10,7 +11,7 @@ const UserProfile = () => {
 
     const fetchUser = async () => {
         try {
-            const res = await fetch("http://localhost:5000/me", {
+            const res = await fetch(`${API_URL}/me`, {
                 credentials: "include"
             });
 

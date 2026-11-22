@@ -11,6 +11,8 @@ import {
     PackageSearch,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import API_URL from "../config/api";
+
 
 const Products = () => {
 
@@ -41,7 +43,7 @@ const Products = () => {
             setLoading(true);
             setError("");
 
-            const res = await fetch("http://localhost:5000/products");
+            const res = await fetch(`${API_URL}/products`);
 
             const data = await res.json();
 
@@ -120,7 +122,7 @@ const Products = () => {
                     ? product.discountPrice
                     : product.price;
 
-            const res = await fetch("http://localhost:5000/add-to-cart", {
+           const res = await fetch(`${API_URL}/add-to-cart`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -12,6 +12,8 @@ import {
     CalendarDays,
     User,
 } from "lucide-react";
+import API_URL from "../../config/api";
+
 
 const Customers = () => {
 
@@ -29,7 +31,7 @@ const Customers = () => {
             setLoading(true);
             setError("");
 
-            const res = await fetch("http://localhost:5000/users", {
+            const res = await fetch(`${API_URL}/users`, {
                 method: "GET",
                 credentials: "include",
             });

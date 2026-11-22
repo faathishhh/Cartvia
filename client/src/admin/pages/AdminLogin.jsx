@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { ShoppingBag } from "lucide-react";
+import API_URL from "../../config/api";
+
 
 const AdminLogin = () => {
 
@@ -22,7 +24,7 @@ const AdminLogin = () => {
 
             // Login API
 
-            const res = await fetch("http://localhost:5000/login", {
+            const res = await fetch(`${API_URL}/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -39,7 +41,7 @@ const AdminLogin = () => {
 
 
             // Verify logged-in user's role
-            const userRes = await fetch("http://localhost:5000/me", {
+            const userRes = await fetch(`${API_URL}/me`, {
                 credentials: "include",
             });
 
