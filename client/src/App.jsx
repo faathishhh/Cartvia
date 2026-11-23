@@ -25,10 +25,11 @@ import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
 import Orders from "./admin/pages/Orders";
 import MyOrders from "./pages/MyOrders";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   return (
-    <>
+    <AuthProvider>
       <Toaster position="top-center" />
 
       <Routes>
@@ -62,7 +63,7 @@ function App() {
         </Route>
 
       </Routes>
-    </>
+    </AuthProvider>
   );
 }
 

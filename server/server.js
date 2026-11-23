@@ -65,29 +65,35 @@ const updateOldUsers = async () => {
     }
 };
 
-// Database connection middleware
+// Database initialization
 let usersUpdated = false;
 
-app.use(async (req, res, next) => {
-    try {
-        await connectDB();
+const initializeDB = async () => {
+    await connectDB();
 
-        if (!usersUpdated) {
-            await updateOldUsers();
-            usersUpdated = true;
-        }
-
-        next();
-
-    } catch (error) {
-        console.error("Database connection failed:", error.message);
-
-        res.status(500).json({
-            success: false,
-            message: "Database connection failed",
-        });
+    if (!usersUpdated) {
+        await updateOldUsers();
+        usersUpdated = true;
     }
-});
+};
+
+// Vercel database middleware
+if (process.env.VERCEL) {
+    app.use(async (req, res, next) => {
+        try {
+            await initializeDB();
+            next();
+
+        } catch (error) {
+            console.error("Database connection failed:", error.message);
+
+            res.status(500).json({
+                success: false,
+                message: "Database connection failed",
+            });
+        }
+    });
+}
 
 // Test route
 app.get("/", (req, res) => {
@@ -107,9 +113,16 @@ app.use(orderRoutes);
 if (!process.env.VERCEL) {
     const PORT = process.env.PORT || 5000;
 
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-    });
+    initializeDB()
+        .then(() => {
+            app.listen(PORT, () => {
+                console.log(`Server is running on port ${PORT}`);
+            });
+        })
+        .catch((error) => {
+            console.error("Server startup failed:", error.message);
+            process.exit(1);
+        });
 }
 
 // Export for Vercel

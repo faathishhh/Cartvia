@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 import {
     ShoppingBag,
@@ -14,6 +15,8 @@ import API_URL from "../config/api";
 const Login = () => {
 
     const navigate = useNavigate();
+
+    const { setUser } = useAuth();
 
     const [formData, setFormData] = useState({
         email: "",
@@ -70,6 +73,7 @@ const Login = () => {
             }
 
             toast.success("Login successful!");
+            setUser(data.user);
 
             if (data.user.role === "admin") {
                 navigate("/admin");

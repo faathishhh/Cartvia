@@ -4,22 +4,24 @@ import toast from "react-hot-toast";
 
 import {
     ShoppingBag,
-    ShoppingCart,
     Search,
-    Menu,
-    X,
+    ShoppingCart,
     UserRound,
     Package,
+    X,
+    Menu,
 } from "lucide-react";
+
 import API_URL from "../config/api";
-
-
+import { useAuth } from "../context/AuthContext";
 
 const NavBar = () => {
 
     const [cartCount, setCartCount] = useState(0);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [search, setSearch] = useState("");
+
+    const { user, setUser, loading } = useAuth();
 
     const navigate = useNavigate();
 
@@ -51,12 +53,19 @@ const NavBar = () => {
     };
 
 
-    // Fetch cart count when component mounts
+    // Fetch cart count only for logged-in customers
     useEffect(() => {
-        fetchCartCount();
+
+        if (!loading && user?.role === "user") {
+            fetchCartCount();
+        } else {
+            setCartCount(0);
+        }
 
         const handleCartUpdate = () => {
-            fetchCartCount();
+            if (user?.role === "user") {
+                fetchCartCount();
+            }
         };
 
         window.addEventListener("cartUpdated", handleCartUpdate);
@@ -65,7 +74,7 @@ const NavBar = () => {
             window.removeEventListener("cartUpdated", handleCartUpdate);
         };
 
-    }, []);
+    }, [user, loading]);
 
 
     // Logout functionality
@@ -79,12 +88,15 @@ const NavBar = () => {
             const data = await res.json();
 
             if (res.ok) {
-                toast.success("Logged out successfully");
 
+                setUser(null);
                 setCartCount(0);
                 setIsMenuOpen(false);
 
-                navigate("/login");
+                toast.success("Logged out successfully");
+
+                navigate("/");
+
             } else {
                 toast.error(data.message || "Logout failed");
             }
@@ -177,9 +189,11 @@ const NavBar = () => {
                             Categories
                         </NavLink>
 
-                        <NavLink to="/my-orders" className={navLinkStyle}>
-                            My Orders
-                        </NavLink>
+                        {user?.role === "user" && (
+                            <NavLink to="/my-orders" className={navLinkStyle}>
+                                My Orders
+                            </NavLink>
+                        )}
 
                     </div>
 
@@ -204,47 +218,90 @@ const NavBar = () => {
                     </form>
 
 
-                    {/* RIGHT SIDE */}
+                    {/* DESKTOP RIGHT SIDE */}
 
                     <div className="hidden md:flex items-center gap-6">
 
+                        {user ? (
 
-                        {/* CART */}
+                            user.role === "admin" ? (
 
-                        <Link
-                            to="/cart"
-                            className="relative text-gray-700 hover:text-blue-600 transition"
-                        >
+                                <>
+                                    {/* ADMIN DASHBOARD */}
 
-                            <ShoppingCart size={24} />
-
-                            {cartCount > 0 && (
-                                <span className="absolute -top-2 -right-3 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                                    {cartCount > 99 ? "99+" : cartCount}
-                                </span>
-                            )}
-
-                        </Link>
+                                    <Link
+                                        to="/admin"
+                                        className="text-gray-700 hover:text-blue-600 font-medium"
+                                    >
+                                        Admin Dashboard
+                                    </Link>
 
 
-                        {/* PROFILE */}
+                                    {/* LOGOUT */}
 
-                        <Link
-                            to="/profile"
-                            className="text-gray-700 hover:text-blue-600 transition"
-                        >
-                            <UserRound size={24} />
-                        </Link>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="text-gray-600 hover:text-blue-600 font-medium"
+                                    >
+                                        Logout
+                                    </button>
+                                </>
+
+                            ) : (
+
+                                <>
+                                    {/* CART */}
+
+                                    <Link
+                                        to="/cart"
+                                        className="relative text-gray-700 hover:text-blue-600 transition"
+                                    >
+
+                                        <ShoppingCart size={24} />
+
+                                        {cartCount > 0 && (
+                                            <span className="absolute -top-2 -right-3 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                                                {cartCount > 99 ? "99+" : cartCount}
+                                            </span>
+                                        )}
+
+                                    </Link>
 
 
-                        {/* LOGOUT */}
+                                    {/* PROFILE */}
 
-                        <button
-                            onClick={handleLogout}
-                            className="text-gray-600 hover:text-blue-600 font-medium"
-                        >
-                            Logout
-                        </button>
+                                    <Link
+                                        to="/profile"
+                                        className="text-gray-700 hover:text-blue-600 transition"
+                                    >
+                                        <UserRound size={24} />
+                                    </Link>
+
+
+                                    {/* LOGOUT */}
+
+                                    <button
+                                        onClick={handleLogout}
+                                        className="text-gray-600 hover:text-blue-600 font-medium"
+                                    >
+                                        Logout
+                                    </button>
+                                </>
+
+                            )
+
+                        ) : (
+
+                            /* LOGIN */
+
+                            <Link
+                                to="/login"
+                                className="bg-violet-700 text-white px-5 py-2 rounded-lg hover:bg-violet-800 transition font-medium"
+                            >
+                                Login
+                            </Link>
+
+                        )}
 
                     </div>
 
@@ -325,50 +382,85 @@ const NavBar = () => {
                             </NavLink>
 
 
-                            {/* MOBILE MY ORDERS */}
+                            {user?.role === "user" && (
 
-                            <NavLink
-                                to="/my-orders"
-                                className="flex items-center gap-3 text-gray-600 hover:text-blue-600"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                <Package size={20} />
-                                My Orders
-                            </NavLink>
+                                <>
+                                    {/* MOBILE MY ORDERS */}
 
-
-                            {/* MOBILE CART */}
-
-                            <Link
-                                to="/cart"
-                                onClick={() => setIsMenuOpen(false)}
-                                className="flex items-center gap-3 text-gray-600 hover:text-blue-600"
-                            >
-                                <ShoppingCart size={20} />
-                                Cart ({cartCount})
-                            </Link>
+                                    <NavLink
+                                        to="/my-orders"
+                                        className="flex items-center gap-3 text-gray-600 hover:text-blue-600"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        <Package size={20} />
+                                        My Orders
+                                    </NavLink>
 
 
-                            {/* MOBILE PROFILE */}
+                                    {/* MOBILE CART */}
 
-                            <Link
-                                to="/profile"
-                                onClick={() => setIsMenuOpen(false)}
-                                className="flex items-center gap-3 text-gray-600 hover:text-blue-600"
-                            >
-                                <UserRound size={20} />
-                                My Profile
-                            </Link>
+                                    <Link
+                                        to="/cart"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="flex items-center gap-3 text-gray-600 hover:text-blue-600"
+                                    >
+                                        <ShoppingCart size={20} />
+                                        Cart ({cartCount})
+                                    </Link>
 
 
-                            {/* MOBILE LOGOUT */}
+                                    {/* MOBILE PROFILE */}
 
-                            <button
-                                onClick={handleLogout}
-                                className="text-left text-gray-600 hover:text-blue-600"
-                            >
-                                Logout
-                            </button>
+                                    <Link
+                                        to="/profile"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="flex items-center gap-3 text-gray-600 hover:text-blue-600"
+                                    >
+                                        <UserRound size={20} />
+                                        My Profile
+                                    </Link>
+                                </>
+
+                            )}
+
+
+                            {user?.role === "admin" && (
+
+                                <Link
+                                    to="/admin"
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="flex items-center gap-3 text-gray-600 hover:text-blue-600 font-medium"
+                                >
+                                    Admin Dashboard
+                                </Link>
+
+                            )}
+
+
+                            {user ? (
+
+                                /* MOBILE LOGOUT */
+
+                                <button
+                                    onClick={handleLogout}
+                                    className="text-left text-gray-600 hover:text-blue-600"
+                                >
+                                    Logout
+                                </button>
+
+                            ) : (
+
+                                /* MOBILE LOGIN */
+
+                                <Link
+                                    to="/login"
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="text-violet-700 font-semibold hover:text-violet-900"
+                                >
+                                    Login
+                                </Link>
+
+                            )}
 
                         </div>
 
@@ -383,6 +475,5 @@ const NavBar = () => {
     );
 
 };
-
 
 export default NavBar;

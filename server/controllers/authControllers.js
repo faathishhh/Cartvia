@@ -124,17 +124,25 @@ export const login = async (req, res) => {
 
 export const GetUser = async (req, res) => {
     try {
-        // console.log("from GetUser:",req.user);
-
-        res.status(200).json({ succes: true, user: req.user })
-
+        res.status(200).json({
+            success: true,
+            user: {
+                _id: req.user._id,
+                name: req.user.name,
+                email: req.user.email,
+                phone: req.user.phone,
+                role: req.user.role,
+            },
+        });
 
     } catch (error) {
-        res.status(500).json({ message: error.message, success: false })
-
-
+        res.status(500).json({
+            message: error.message,
+            success: false,
+        });
     }
-}
+};
+
 
 
 export const logoutUser = async (req, res) => {
