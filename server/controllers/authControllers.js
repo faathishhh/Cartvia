@@ -1,11 +1,8 @@
-import User from "../models/userModel.js"
+import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
-import jwt from 'jsonwebtoken'
-import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
 
-
-
-
+// Register
 export const register = async (req, res) => {
     try {
         const { name, email, password, phone } = req.body;
@@ -48,6 +45,8 @@ export const register = async (req, res) => {
     }
 };
 
+
+// Login
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -94,11 +93,13 @@ export const login = async (req, res) => {
             { expiresIn: "1hr" }
         );
 
+        const isProduction = process.env.NODE_ENV === "production";
+
         res.cookie("token", token, {
             httpOnly: true,
             maxAge: 60 * 60 * 1000,
-            sameSite: "lax",
-            secure: false,
+            sameSite: isProduction ? "none" : "lax",
+            secure: isProduction,
         });
 
         return res.status(200).json({
@@ -121,7 +122,7 @@ export const login = async (req, res) => {
 };
 
 
-
+// Get User
 export const GetUser = async (req, res) => {
     try {
         res.status(200).json({
@@ -144,13 +145,14 @@ export const GetUser = async (req, res) => {
 };
 
 
-
+// Logout
 export const logoutUser = async (req, res) => {
+    const isProduction = process.env.NODE_ENV === "production";
 
     res.clearCookie("token", {
         httpOnly: true,
-        sameSite: "lax",
-        secure: false,
+        sameSite: isProduction ? "none" : "lax",
+        secure: isProduction,
     });
 
     res.status(200).json({
