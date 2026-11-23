@@ -160,3 +160,92 @@ export const logoutUser = async (req, res) => {
         success: true,
     });
 };
+
+
+// Change Password
+export const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+
+        // Check required fields
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "All password fields are required",
+            });
+        }
+
+        // Check new password length
+        if (newPassword.length < 8) {
+            return res.status(400).json({
+                success: false,
+                message: "New password must contain at least 8 characters",
+            });
+        }
+
+        // Check password strength
+        if (!/[A-Z]/.test(newPassword) ||
+            !/[a-z]/.test(newPassword) ||
+            !/[0-9]/.test(newPassword)) {
+            return res.status(400).json({
+                success: false,
+                message: "Password must contain uppercase, lowercase and a number",
+            });
+        }
+
+        // Check password confirmation
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "New passwords do not match",
+            });
+        }
+
+        // Get logged-in user
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        // Verify current password
+        const isMatch = await bcrypt.compare(
+            currentPassword,
+            user.password
+        );
+
+        if (!isMatch) {
+            return res.status(401).json({
+                success: false,
+                message: "Current password is incorrect",
+            });
+        }
+
+        // Prevent reusing the current password
+        if (currentPassword === newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "New password must be different from current password",
+            });
+        }
+
+        // Update password (pre-save hook will hash it)
+        user.password = newPassword;
+        await user.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Password changed successfully",
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Failed to change password",
+            error: error.message,
+        });
+    }
+};

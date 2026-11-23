@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 
 import {
@@ -15,11 +16,9 @@ import toast from "react-hot-toast";
 import API_URL from "../../config/api";
 import { useAuth } from "../../context/AuthContext";
 
-
 const AdminSettings = () => {
 
     const { user, setUser } = useAuth();
-
 
     // Store State
     const [store, setStore] = useState({
@@ -30,17 +29,22 @@ const AdminSettings = () => {
         description: "Your one-stop online shopping destination.",
     });
 
-
     // Admin State
     const [admin, setAdmin] = useState({
         name: "",
         email: "",
     });
 
+    // Password State
+    const [password, setPassword] = useState({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+    });
 
     const [storeLoading, setStoreLoading] = useState(false);
     const [adminLoading, setAdminLoading] = useState(false);
-
+    const [passwordLoading, setPasswordLoading] = useState(false);
 
     // Fetch Store Settings
     useEffect(() => {
@@ -87,7 +91,6 @@ const AdminSettings = () => {
 
     }, []);
 
-
     // Fetch Admin Details from AuthContext
     useEffect(() => {
 
@@ -102,7 +105,6 @@ const AdminSettings = () => {
 
     }, [user]);
 
-
     // Store Input Change
     const handleStoreChange = (e) => {
 
@@ -113,7 +115,6 @@ const AdminSettings = () => {
 
     };
 
-
     // Admin Input Change
     const handleAdminChange = (e) => {
 
@@ -123,7 +124,6 @@ const AdminSettings = () => {
         });
 
     };
-
 
     // Save Store Settings
     const handleStoreSubmit = async (e) => {
@@ -178,7 +178,6 @@ const AdminSettings = () => {
 
     };
 
-
     // Update Admin Profile
     const handleAdminSubmit = async (e) => {
 
@@ -230,15 +229,68 @@ const AdminSettings = () => {
 
     };
 
+    // Change Admin Password
+    const handlePasswordSubmit = async (e) => {
+
+        e.preventDefault();
+
+        if (password.newPassword !== password.confirmPassword) {
+            toast.error("New passwords do not match");
+            return;
+        }
+
+        try {
+
+            setPasswordLoading(true);
+
+            const response = await fetch(
+                `${API_URL}/admin/change-password`,
+                {
+                    method: "PUT",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+
+                    credentials: "include",
+
+                    body: JSON.stringify(password),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Failed to change password");
+            }
+
+            toast.success("Password changed successfully!");
+
+            setPassword({
+                currentPassword: "",
+                newPassword: "",
+                confirmPassword: "",
+            });
+
+        } catch (error) {
+
+            console.error("Password Change Error:", error);
+            toast.error(error.message);
+
+        } finally {
+
+            setPasswordLoading(false);
+
+        }
+
+    };
 
     const inputStyle =
         "w-full border border-gray-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition";
 
-
     return (
 
         <div className="space-y-8">
-
 
             {/* Header */}
             <div>
@@ -253,7 +305,6 @@ const AdminSettings = () => {
                         />
 
                     </div>
-
 
                     <div>
 
@@ -271,11 +322,8 @@ const AdminSettings = () => {
 
             </div>
 
-
-
             {/* Store Information */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-
 
                 <div className="flex items-center gap-3 mb-6">
 
@@ -290,12 +338,10 @@ const AdminSettings = () => {
 
                 </div>
 
-
                 <form
                     onSubmit={handleStoreSubmit}
                     className="space-y-5"
                 >
-
 
                     {/* Store Name */}
                     <div>
@@ -315,11 +361,8 @@ const AdminSettings = () => {
 
                     </div>
 
-
-
                     {/* Email and Phone */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
 
                         <div>
 
@@ -347,8 +390,6 @@ const AdminSettings = () => {
                             </div>
 
                         </div>
-
-
 
                         <div>
 
@@ -379,8 +420,6 @@ const AdminSettings = () => {
 
                     </div>
 
-
-
                     {/* Store Address */}
                     <div>
 
@@ -408,8 +447,6 @@ const AdminSettings = () => {
 
                     </div>
 
-
-
                     {/* Store Description */}
                     <div>
 
@@ -428,8 +465,6 @@ const AdminSettings = () => {
 
                     </div>
 
-
-
                     {/* Save Button */}
                     <button
                         type="submit"
@@ -443,17 +478,12 @@ const AdminSettings = () => {
 
                     </button>
 
-
                 </form>
 
             </div>
 
-
-
-
             {/* Admin Profile */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-
 
                 <div className="flex items-center gap-3 mb-6">
 
@@ -468,13 +498,10 @@ const AdminSettings = () => {
 
                 </div>
 
-
-
                 <form
                     onSubmit={handleAdminSubmit}
                     className="space-y-5"
                 >
-
 
                     {/* Admin Name */}
                     <div>
@@ -495,8 +522,6 @@ const AdminSettings = () => {
 
                     </div>
 
-
-
                     {/* Admin Email */}
                     <div>
 
@@ -516,8 +541,6 @@ const AdminSettings = () => {
 
                     </div>
 
-
-
                     {/* Save Button */}
                     <button
                         type="submit"
@@ -531,17 +554,12 @@ const AdminSettings = () => {
 
                     </button>
 
-
                 </form>
 
             </div>
 
-
-
-
             {/* Security */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-
 
                 <div className="flex items-center gap-3 mb-4">
 
@@ -556,25 +574,117 @@ const AdminSettings = () => {
 
                 </div>
 
-
-                <p className="text-gray-500 text-sm mb-4">
-                    Keep your administrator account secure by using a strong password.
+                <p className="text-gray-500 text-sm mb-6">
+                    Keep your administrator account secure by updating your password regularly.
                 </p>
 
+                <form
+                    onSubmit={handlePasswordSubmit}
+                    className="space-y-5"
+                >
 
-                <p className="text-sm text-gray-400">
-                    Password management will be connected to your backend in the next step.
-                </p>
+                    {/* Current Password */}
+                    <div>
 
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Current Password
+                        </label>
+
+                        <input
+                            type="password"
+                            name="currentPassword"
+                            value={password.currentPassword}
+                            onChange={(e) =>
+                                setPassword({
+                                    ...password,
+                                    currentPassword: e.target.value,
+                                })
+                            }
+                            placeholder="Enter current password"
+                            className={inputStyle}
+                            required
+                            autoComplete="current-password"
+                        />
+
+                    </div>
+
+                    {/* New Password */}
+                    <div>
+
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            New Password
+                        </label>
+
+                        <input
+                            type="password"
+                            name="newPassword"
+                            value={password.newPassword}
+                            onChange={(e) =>
+                                setPassword({
+                                    ...password,
+                                    newPassword: e.target.value,
+                                })
+                            }
+                            placeholder="Enter new password"
+                            className={inputStyle}
+                            minLength={8}
+                            required
+                            autoComplete="new-password"
+                        />
+
+                        <p className="text-xs text-gray-400 mt-2">
+                            Minimum 8 characters, including uppercase, lowercase and a number.
+                        </p>
+
+                    </div>
+
+                    {/* Confirm Password */}
+                    <div>
+
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Confirm New Password
+                        </label>
+
+                        <input
+                            type="password"
+                            name="confirmPassword"
+                            value={password.confirmPassword}
+                            onChange={(e) =>
+                                setPassword({
+                                    ...password,
+                                    confirmPassword: e.target.value,
+                                })
+                            }
+                            placeholder="Confirm new password"
+                            className={inputStyle}
+                            minLength={8}
+                            required
+                            autoComplete="new-password"
+                        />
+
+                    </div>
+
+                    {/* Change Password Button */}
+                    <button
+                        type="submit"
+                        disabled={passwordLoading}
+                        className="flex items-center gap-2 bg-violet-600 text-white px-5 py-3 rounded-lg hover:bg-violet-700 transition disabled:opacity-50"
+                    >
+
+                        <Lock size={18} />
+
+                        {passwordLoading ? "Updating..." : "Change Password"}
+
+                    </button>
+
+                </form>
 
             </div>
-
 
         </div>
 
     );
 
 };
-
 
 export default AdminSettings;
