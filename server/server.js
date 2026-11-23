@@ -1,5 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
+import dns from "dns";
+
 import connectDB from "./config/db.js";
 
 import authRoutes from "./routes/authRoutes.js";
@@ -10,7 +12,12 @@ import orderRoutes from "./routes/orderRoutes.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
+import User from "./models/userModel.js";
+
 dotenv.config();
+
+// DNS configuration
+dns.setServers(["8.8.8.8"]);
 
 const app = express();
 
@@ -35,11 +42,43 @@ app.use(cors({
 
 app.use(cookieParser());
 
-// Connect Database
+// Update existing users who don't have timestamps
+const updateOldUsers = async () => {
+    try {
+        const result = await User.collection.updateMany(
+            { createdAt: { $exists: false } },
+            [
+                {
+                    $set: {
+                        createdAt: {
+                            $ifNull: ["$updatedAt", new Date()]
+                        }
+                    }
+                }
+            ]
+        );
+
+        console.log("Existing users updated:", result.modifiedCount);
+
+    } catch (error) {
+        console.log("User update error:", error.message);
+    }
+};
+
+// Database connection middleware
+let usersUpdated = false;
+
 app.use(async (req, res, next) => {
     try {
         await connectDB();
+
+        if (!usersUpdated) {
+            await updateOldUsers();
+            usersUpdated = true;
+        }
+
         next();
+
     } catch (error) {
         console.error("Database connection failed:", error.message);
 
@@ -50,7 +89,7 @@ app.use(async (req, res, next) => {
     }
 });
 
-// Test Route
+// Test route
 app.get("/", (req, res) => {
     res.json({
         success: true,
@@ -58,11 +97,20 @@ app.get("/", (req, res) => {
     });
 });
 
-// Register Routes
+// Register routes
 app.use(authRoutes);
 app.use(productRoutes);
 app.use(cartRoutes);
 app.use(orderRoutes);
 
-// Export Express App for Vercel
+// Local server
+if (!process.env.VERCEL) {
+    const PORT = process.env.PORT || 5000;
+
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+}
+
+// Export for Vercel
 export default app;
