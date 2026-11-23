@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -10,9 +9,9 @@ import {
     SlidersHorizontal,
     PackageSearch,
 } from "lucide-react";
+
 import toast from "react-hot-toast";
 import API_URL from "../config/api";
-
 
 const Products = () => {
 
@@ -23,16 +22,26 @@ const Products = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    // Search, category and wishlist states
-    const [search, setSearch] = useState("");
+    // URL search parameters
     const [searchParams, setSearchParams] = useSearchParams();
-    const [category, setCategory] = useState("All");
+
+    // Search, category and wishlist states
+    const [search, setSearch] = useState(
+        searchParams.get("search") || ""
+    );
+
+    const [category, setCategory] = useState(
+        searchParams.get("category") || "All"
+    );
+
     const [wishlist, setWishlist] = useState([]);
 
-    // Get search value from navbar URL
+    // Sync search and category with URL
     useEffect(() => {
 
         setSearch(searchParams.get("search") || "");
+
+        setCategory(searchParams.get("category") || "All");
 
     }, [searchParams]);
 
@@ -50,19 +59,26 @@ const Products = () => {
             console.log("Products Response:", data);
 
             if (!res.ok) {
-                throw new Error(data.message || "Failed to fetch products");
+                throw new Error(
+                    data.message || "Failed to fetch products"
+                );
             }
 
             if (data.success) {
                 setProducts(data.products || []);
             } else {
-                setError(data.message || "Unable to load products");
+                setError(
+                    data.message || "Unable to load products"
+                );
             }
 
         } catch (error) {
 
             console.error("Fetch Products Error:", error);
-            setError(error.message || "Something went wrong");
+
+            setError(
+                error.message || "Something went wrong"
+            );
 
         } finally {
             setLoading(false);
@@ -77,8 +93,40 @@ const Products = () => {
     // Get categories dynamically
     const categories = [
         "All",
-        ...new Set(products.map((product) => product.category))
+        ...new Set(
+            products.map((product) => product.category).filter(Boolean)
+        )
     ];
+
+    // Handle category selection
+    const handleCategoryChange = (item) => {
+
+        const updatedParams = new URLSearchParams(searchParams);
+
+        if (item === "All") {
+            updatedParams.delete("category");
+        } else {
+            updatedParams.set("category", item);
+        }
+
+        setSearchParams(updatedParams);
+
+    };
+
+    // Handle search
+    const handleSearchChange = (value) => {
+
+        const updatedParams = new URLSearchParams(searchParams);
+
+        if (value.trim()) {
+            updatedParams.set("search", value);
+        } else {
+            updatedParams.delete("search");
+        }
+
+        setSearchParams(updatedParams);
+
+    };
 
     // Search and category filtering
     const filteredProducts = products.filter((product) => {
@@ -91,9 +139,12 @@ const Products = () => {
             product.category?.toLowerCase().includes(searchValue);
 
         const matchesCategory =
-            category === "All" || product.category === category;
+            category === "All" ||
+            product.category?.trim().toLowerCase() ===
+            category.trim().toLowerCase();
 
         return matchesSearch && matchesCategory;
+
     });
 
     // Wishlist functionality
@@ -107,7 +158,7 @@ const Products = () => {
 
     };
 
-    // Add to cart (temporary)
+    // Add to cart
     const handleAddToCart = async (product) => {
 
         if (product.stock === 0) {
@@ -116,13 +167,14 @@ const Products = () => {
         }
 
         try {
+
             const price =
                 product.discountPrice != null &&
                     product.discountPrice < product.price
                     ? product.discountPrice
                     : product.price;
 
-           const res = await fetch(`${API_URL}/add-to-cart`, {
+            const res = await fetch(`${API_URL}/add-to-cart`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -137,16 +189,25 @@ const Products = () => {
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.message || "Failed to add product");
+                throw new Error(
+                    data.message || "Failed to add product"
+                );
             }
 
-            toast.success(`${product.productName} added to cart!`);
+            toast.success(
+                `${product.productName} added to cart!`
+            );
 
         } catch (error) {
+
             console.error("Add to cart error:", error);
-            alert(error.message);
+
+            toast.error(error.message);
+
         }
+
     };
+
     return (
 
         <div className="min-h-screen bg-[#F8F7FC] px-5 py-10 md:px-12">
@@ -155,12 +216,14 @@ const Products = () => {
             <div className="max-w-7xl mx-auto mb-10">
 
                 <p className="text-violet-700 font-semibold uppercase tracking-widest text-sm">
-                    Explore CARTIVA
+                    Explore CARTVIA
                 </p>
 
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mt-3">
                     Discover Our{" "}
-                    <span className="text-violet-700">Products.</span>
+                    <span className="text-violet-700">
+                        Products.
+                    </span>
                 </h1>
 
                 <p className="text-gray-500 mt-3 text-lg">
@@ -168,7 +231,6 @@ const Products = () => {
                 </p>
 
             </div>
-
 
             {/* Search and Filters */}
             <div className="max-w-7xl mx-auto mb-10">
@@ -178,7 +240,10 @@ const Products = () => {
                     {/* Search */}
                     <div className="flex items-center bg-white border border-gray-200 rounded-xl px-4 py-3 lg:w-96 focus-within:ring-2 focus-within:ring-violet-500">
 
-                        <Search size={20} className="text-gray-400" />
+                        <Search
+                            size={20}
+                            className="text-gray-400"
+                        />
 
                         <input
                             type="text"
@@ -188,18 +253,12 @@ const Products = () => {
                                 const value = e.target.value;
 
                                 setSearch(value);
-
-                                if (value.trim()) {
-                                    setSearchParams({ search: value });
-                                } else {
-                                    setSearchParams({});
-                                }
+                                handleSearchChange(value);
                             }}
                             className="w-full outline-none bg-transparent px-3 text-gray-700"
                         />
 
                     </div>
-
 
                     {/* Categories */}
                     <div className="flex flex-wrap gap-2 items-center">
@@ -213,10 +272,10 @@ const Products = () => {
 
                             <button
                                 key={item}
-                                onClick={() => setCategory(item)}
-                                className={`px-5 py-2.5 rounded-xl font-semibold transition ${category === item
-                                    ? "bg-violet-700 text-white shadow-lg shadow-violet-200"
-                                    : "bg-white text-gray-600 hover:bg-violet-100"
+                                onClick={() => handleCategoryChange(item)}
+                                className={`px-5 py-2.5 rounded-xl font-semibold transition ${category.toLowerCase() === item.toLowerCase()
+                                        ? "bg-violet-700 text-white shadow-lg shadow-violet-200"
+                                        : "bg-white text-gray-600 hover:bg-violet-100"
                                     }`}
                             >
                                 {item}
@@ -230,7 +289,6 @@ const Products = () => {
 
             </div>
 
-
             {/* Product Count */}
             <div className="max-w-7xl mx-auto mb-6 flex justify-between items-center">
 
@@ -243,7 +301,6 @@ const Products = () => {
                 </p>
 
             </div>
-
 
             {/* Product Grid */}
             <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
@@ -302,7 +359,6 @@ const Products = () => {
 
                                 </Link>
 
-
                                 {/* Featured Badge */}
                                 {product.isFeatured && (
 
@@ -311,7 +367,6 @@ const Products = () => {
                                     </span>
 
                                 )}
-
 
                                 {/* Wishlist */}
                                 <button
@@ -331,7 +386,6 @@ const Products = () => {
 
                                 </button>
 
-
                                 {/* Stock Badge */}
                                 {product.stock === 0 && (
 
@@ -342,7 +396,6 @@ const Products = () => {
                                 )}
 
                             </div>
-
 
                             {/* Product Details */}
                             <div className="p-5">
@@ -359,7 +412,6 @@ const Products = () => {
 
                                 </div>
 
-
                                 {/* Product Name */}
                                 <Link to={`/products/${product._id}`}>
 
@@ -369,12 +421,10 @@ const Products = () => {
 
                                 </Link>
 
-
                                 {/* Description */}
                                 <p className="text-sm text-gray-500 mt-2 line-clamp-2">
                                     {product.description}
                                 </p>
-
 
                                 {/* Ratings */}
                                 <div className="flex items-center gap-1 mt-3">
@@ -394,7 +444,6 @@ const Products = () => {
                                     </span>
 
                                 </div>
-
 
                                 {/* Price and Cart */}
                                 <div className="flex items-center justify-between mt-5">
@@ -421,7 +470,6 @@ const Products = () => {
 
                                     </div>
 
-
                                     {/* Add to Cart */}
                                     <button
                                         onClick={() => handleAddToCart(product)}
@@ -433,7 +481,6 @@ const Products = () => {
                                     </button>
 
                                 </div>
-
 
                                 {/* View Details Button */}
                                 <Link

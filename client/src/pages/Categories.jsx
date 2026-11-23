@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { PackageSearch } from "lucide-react";
@@ -7,25 +5,29 @@ import API_URL from "../config/api";
 
 const Categories = () => {
 
-  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Fetch products
-  const fetchProducts = async () => {
+  // Fetch categories
+  const fetchCategories = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const res = await fetch(`${API_URL}/products`);
+      const res = await fetch(`${API_URL}/categories`);
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Failed to fetch products");
+        throw new Error(data.message || "Failed to fetch categories");
       }
 
       if (data.success) {
-        setProducts(data.products || []);
+        const activeCategories = (data.categories || []).filter(
+          (category) => category.isActive !== false
+        );
+
+        setCategories(activeCategories);
       } else {
         setError(data.message || "Unable to load categories");
       }
@@ -40,31 +42,8 @@ const Categories = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
+    fetchCategories();
   }, []);
-
-  // Create categories dynamically
-  const categories = Object.values(
-    products.reduce((acc, product) => {
-
-      const categoryName = product.category?.trim();
-
-      if (!categoryName) return acc;
-
-      if (!acc[categoryName]) {
-        acc[categoryName] = {
-          name: categoryName,
-          image: product.images?.[0] || "",
-          count: 0
-        };
-      }
-
-      acc[categoryName].count++;
-
-      return acc;
-
-    }, {})
-  );
 
   return (
 
@@ -112,7 +91,7 @@ const Categories = () => {
           </p>
 
           <button
-            onClick={fetchProducts}
+            onClick={fetchCategories}
             className="mt-5 bg-violet-700 text-white px-6 py-3 rounded-xl hover:bg-violet-800"
           >
             Try Again
@@ -129,7 +108,7 @@ const Categories = () => {
 
             <Link
               to={`/products?category=${encodeURIComponent(category.name)}`}
-              key={category.name}
+              key={category._id}
               className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300"
             >
 
@@ -165,7 +144,7 @@ const Categories = () => {
                 </h2>
 
                 <p className="text-gray-500 mt-2">
-                  {category.count} Products
+                  {category.productCount ?? 0} Products
                 </p>
 
                 <span className="inline-block mt-5 text-violet-700 font-semibold group-hover:underline">
@@ -194,7 +173,7 @@ const Categories = () => {
           </h2>
 
           <p className="text-gray-500 mt-2">
-            Add products from your admin dashboard to see categories here.
+            Add categories from your admin dashboard to see them here.
           </p>
 
         </div>

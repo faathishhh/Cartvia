@@ -3,11 +3,13 @@ import dotenv from "dotenv";
 import dns from "dns";
 
 import connectDB from "./config/db.js";
-
+import categoryRoutes from "./routes/categoryRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
+import storeSettingsRoutes from "./routes/storeSettingsRoutes.js";
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -108,6 +110,9 @@ app.use(authRoutes);
 app.use(productRoutes);
 app.use(cartRoutes);
 app.use(orderRoutes);
+app.use(categoryRoutes);
+app.use(analyticsRoutes);
+app.use(storeSettingsRoutes);
 
 // Local server
 if (!process.env.VERCEL) {

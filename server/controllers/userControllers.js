@@ -31,3 +31,66 @@ export const getAllUsers = async (req, res) => {
 
     }
 };
+
+// Update Admin Profile
+export const updateAdminProfile = async (req, res) => {
+    try {
+
+        const { name, email, phone } = req.body;
+
+        if (!name?.trim() || !email?.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "Name and email are required",
+            });
+        }
+
+        // Check whether email is already used by another account
+        const existingUser = await User.findOne({
+            email: email.trim().toLowerCase(),
+            _id: { $ne: req.user._id },
+        });
+
+        if (existingUser) {
+            return res.status(409).json({
+                success: false,
+                message: "Email already exists",
+            });
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                name: name.trim(),
+                email: email.trim().toLowerCase(),
+                phone: phone || "",
+            },
+            {
+                new: true,
+                runValidators: true,
+            }
+        ).select("-password");
+
+        if (!updatedUser) {
+            return res.status(404).json({
+                success: false,
+                message: "Admin not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Profile updated successfully",
+            user: updatedUser,
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to update profile",
+            error: error.message,
+        });
+
+    }
+};

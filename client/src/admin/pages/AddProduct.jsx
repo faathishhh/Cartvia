@@ -1,18 +1,16 @@
-import React from 'react'
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Plus, Save } from "lucide-react";
+import { ArrowLeft, Save } from "lucide-react";
 import toast from "react-hot-toast";
 import API_URL from "../../config/api";
 
-
-
-
 const AddProduct = () => {
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
+    const [categoriesLoading, setCategoriesLoading] = useState(true);
+    const [categories, setCategories] = useState([]);
 
     const [formData, setFormData] = useState({
         productName: "",
@@ -29,7 +27,40 @@ const AddProduct = () => {
         isActive: true,
     });
 
+    // Fetch categories from database
+    const fetchCategories = async () => {
+        try {
+            setCategoriesLoading(true);
 
+            const res = await fetch(`${API_URL}/categories`);
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || "Failed to fetch categories");
+            }
+
+            if (data.success) {
+                const activeCategories = (data.categories || []).filter(
+                    (category) => category.isActive !== false
+                );
+
+                setCategories(activeCategories);
+            }
+
+        } catch (error) {
+            console.error("Category Fetch Error:", error);
+            toast.error(error.message);
+
+        } finally {
+            setCategoriesLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchCategories();
+    }, []);
+
+    // Handle input changes
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
 
@@ -38,6 +69,8 @@ const AddProduct = () => {
             [name]: type === "checkbox" ? checked : value,
         });
     };
+
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -96,13 +129,11 @@ const AddProduct = () => {
         } catch (error) {
             toast.error(error.message);
             console.error("Add product error:", error);
+
         } finally {
             setLoading(false);
         }
     };
-
-
-
 
     return (
         <div className="max-w-5xl mx-auto">
@@ -123,7 +154,7 @@ const AddProduct = () => {
                     </h1>
 
                     <p className="text-gray-500 mt-1">
-                        Add a new product to your CARTIVA store.
+                        Add a new product to your CARTVIA store.
                     </p>
                 </div>
 
@@ -174,6 +205,7 @@ const AddProduct = () => {
                         />
                     </div>
 
+                    {/* Dynamic Category Dropdown */}
                     <div>
                         <label className="block text-sm font-medium mb-2">
                             Category *
@@ -184,15 +216,32 @@ const AddProduct = () => {
                             value={formData.category}
                             onChange={handleChange}
                             required
-                            className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-violet-500"
+                            disabled={categoriesLoading || categories.length === 0}
+                            className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-violet-500 disabled:bg-gray-100"
                         >
-                            <option value="">Select Category</option>
-                            <option value="Electronics">Electronics</option>
-                            <option value="Fashion">Fashion</option>
-                            <option value="Home & Living">Home & Living</option>
-                            <option value="Beauty">Beauty</option>
-                            <option value="Furniture">Furniture</option>
+                            <option value="">
+                                {categoriesLoading
+                                    ? "Loading categories..."
+                                    : categories.length === 0
+                                        ? "No categories available"
+                                        : "Select Category"}
+                            </option>
+
+                            {categories.map((category) => (
+                                <option
+                                    key={category._id}
+                                    value={category.name}
+                                >
+                                    {category.name}
+                                </option>
+                            ))}
                         </select>
+
+                        {!categoriesLoading && categories.length === 0 && (
+                            <p className="mt-2 text-xs text-red-500">
+                                Please add an active category first.
+                            </p>
+                        )}
                     </div>
 
                     <div>
@@ -289,7 +338,7 @@ const AddProduct = () => {
                         name="images"
                         value={formData.images}
                         onChange={handleChange}
-                        placeholder={"Enter image URLs, one per line"}
+                        placeholder="Enter image URLs, one per line"
                         rows="3"
                         required
                         className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-violet-500"
@@ -384,7 +433,7 @@ const AddProduct = () => {
 
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || categoriesLoading || categories.length === 0}
                         className="flex items-center gap-2 px-6 py-3 rounded-lg bg-violet-700 text-white hover:bg-violet-800 disabled:opacity-50"
                     >
                         <Save size={18} />
@@ -399,4 +448,4 @@ const AddProduct = () => {
     );
 };
 
-export default AddProduct
+export default AddProduct;

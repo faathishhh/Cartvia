@@ -26,6 +26,9 @@ import OrderSuccess from "./pages/OrderSuccess";
 import Orders from "./admin/pages/Orders";
 import MyOrders from "./pages/MyOrders";
 import { AuthProvider } from "./context/AuthContext";
+import AdminCategories from "./admin/pages/AdminCategories";
+import Analytics from "./admin/pages/Analytics";
+import AdminSettings from "./admin/pages/Settings";
 
 function App() {
   return (
@@ -59,6 +62,9 @@ function App() {
             <Route path="products/add" element={<AddProduct />} />
             <Route path="customers" element={<Customers />} />
             <Route path="orders" element={<Orders />} />
+            <Route path="categories" element={<AdminCategories />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
         </Route>
 
