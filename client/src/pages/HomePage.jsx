@@ -19,70 +19,14 @@ import {
     ArrowUpRight,
     Package,
     RefreshCw,
+    PackageSearch,
 } from "lucide-react";
 
 import API_URL from "../config/api";
 
-// ===============================
-// CARTVIA CATEGORIES
-// ===============================
-
-const categories = [
-    {
-        name: "Makeup",
-        subtitle: "Beauty essentials",
-        image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800",
-    },
-    {
-        name: "Perfume",
-        subtitle: "Find your signature scent",
-        image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800",
-    },
-    {
-        name: "Skincare",
-        subtitle: "Your everyday glow",
-        image: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=800",
-    },
-    {
-        name: "Clothing",
-        subtitle: "Everyday fashion",
-        image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800",
-    },
-    {
-        name: "Footwear",
-        subtitle: "Step up your style",
-        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
-    },
-    {
-        name: "Accessories",
-        subtitle: "The finishing touch",
-        image: "https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=800",
-    },
-    {
-        name: "Smartphone",
-        subtitle: "Smart technology",
-        image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800",
-    },
-    {
-        name: "Laptop",
-        subtitle: "Power your productivity",
-        image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800",
-    },
-    {
-        name: "Furniture",
-        subtitle: "Comfort meets design",
-        image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
-    },
-    {
-        name: "Home Decor",
-        subtitle: "Make your space yours",
-        image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800",
-    },
-];
-
-// ===============================
+// =====================================
 // TRUST FEATURES
-// ===============================
+// =====================================
 
 const trustFeatures = [
     {
@@ -107,36 +51,36 @@ const trustFeatures = [
     },
 ];
 
-// ===============================
+// =====================================
 // PRODUCT SKELETON
-// ===============================
+// =====================================
 
-const ProductSkeleton = () => {
-    return (
-        <div className="animate-pulse">
-            <div className="aspect-[4/5] bg-gray-200 rounded-2xl"></div>
+const ProductSkeleton = () => (
+    <div className="animate-pulse">
+        <div className="aspect-[4/5] rounded-2xl bg-gray-200" />
 
-            <div className="mt-4 space-y-3">
-                <div className="h-3 w-24 bg-gray-200 rounded"></div>
-                <div className="h-5 w-3/4 bg-gray-200 rounded"></div>
-                <div className="h-5 w-1/2 bg-gray-200 rounded"></div>
-                <div className="h-10 w-full bg-gray-200 rounded-xl mt-5"></div>
-            </div>
+        <div className="mt-4 space-y-3">
+            <div className="h-3 w-24 rounded bg-gray-200" />
+            <div className="h-5 w-3/4 rounded bg-gray-200" />
+            <div className="h-5 w-1/2 rounded bg-gray-200" />
+            <div className="mt-5 h-10 w-full rounded-xl bg-gray-200" />
         </div>
-    );
-};
+    </div>
+);
 
-// ===============================
+// =====================================
 // PRODUCT CARD
-// ===============================
+// =====================================
 
 const ProductCard = ({ product }) => {
+
     const [imageError, setImageError] = useState(false);
 
     const image = product.images?.[0];
 
     const hasDiscount =
         product.discountPrice != null &&
+        Number(product.discountPrice) > 0 &&
         Number(product.discountPrice) < Number(product.price);
 
     const finalPrice = hasDiscount
@@ -146,15 +90,12 @@ const ProductCard = ({ product }) => {
     const discountPercentage = hasDiscount
         ? Math.round(
             ((Number(product.price) - Number(product.discountPrice)) /
-                Number(product.price)) *
-            100
+                Number(product.price)) * 100
         )
         : 0;
 
     return (
         <div className="group min-w-0">
-
-            {/* Product Image */}
 
             <Link
                 to={`/products/${product._id}`}
@@ -164,57 +105,53 @@ const ProductCard = ({ product }) => {
                 <div className="aspect-[4/5] overflow-hidden">
 
                     {image && !imageError ? (
+
                         <img
                             src={image}
                             alt={product.productName}
                             loading="lazy"
                             onError={() => setImageError(true)}
-                            className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
+                            className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
                         />
+
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center">
+
+                        <div className="flex h-full w-full items-center justify-center">
                             <ShoppingBag
                                 size={50}
                                 className="text-violet-300"
                             />
                         </div>
+
                     )}
 
                 </div>
 
-                {/* Discount Badge */}
-
                 {hasDiscount && (
-                    <span className="absolute top-4 left-4 bg-[#EDE5FF] text-violet-800 text-xs font-bold px-3 py-2 rounded-full">
+                    <span className="absolute left-4 top-4 rounded-full bg-[#EDE5FF] px-3 py-2 text-xs font-bold text-violet-800">
                         -{discountPercentage}%
                     </span>
                 )}
 
                 {!hasDiscount && product.isFeatured && (
-                    <span className="absolute top-4 left-4 bg-white text-gray-800 text-xs font-bold px-3 py-2 rounded-full shadow-sm">
+                    <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-2 text-xs font-bold text-gray-800 shadow-sm">
                         Featured
                     </span>
                 )}
 
-                {/* Wishlist Icon */}
-
-                <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur flex items-center justify-center text-gray-700 shadow-sm transition group-hover:text-violet-700">
+                <div className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-sm transition group-hover:text-violet-700">
                     <Heart size={18} />
                 </div>
 
-                {/* Hover Button */}
-
                 <div className="absolute bottom-4 left-4 right-4 translate-y-3 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
 
-                    <div className="bg-white text-gray-900 text-sm font-semibold py-3 rounded-xl text-center shadow-lg">
+                    <div className="rounded-xl bg-white py-3 text-center text-sm font-semibold text-gray-900 shadow-lg">
                         View Product
                     </div>
 
                 </div>
 
             </Link>
-
-            {/* Product Details */}
 
             <div className="pt-4">
 
@@ -223,14 +160,12 @@ const ProductCard = ({ product }) => {
                 </p>
 
                 <Link to={`/products/${product._id}`}>
-                    <h3 className="text-gray-900 font-semibold text-base mt-2 line-clamp-1 hover:text-violet-700 transition">
+                    <h3 className="mt-2 line-clamp-1 text-base font-semibold text-gray-900 transition hover:text-violet-700">
                         {product.productName}
                     </h3>
                 </Link>
 
-                {/* Rating */}
-
-                <div className="flex items-center gap-1.5 mt-2">
+                <div className="mt-2 flex items-center gap-1.5">
 
                     <Star
                         size={14}
@@ -248,9 +183,7 @@ const ProductCard = ({ product }) => {
 
                 </div>
 
-                {/* Price */}
-
-                <div className="flex flex-wrap items-center gap-2 mt-3">
+                <div className="mt-3 flex flex-wrap items-center gap-2">
 
                     <span className="text-lg font-bold text-gray-900">
                         ₹{finalPrice.toLocaleString("en-IN")}
@@ -270,19 +203,38 @@ const ProductCard = ({ product }) => {
     );
 };
 
-// ===============================
+// =====================================
+// CATEGORY SKELETON
+// =====================================
+
+const CategorySkeleton = () => (
+    <div className="animate-pulse overflow-hidden rounded-2xl bg-white">
+        <div className="aspect-[4/5] bg-gray-200" />
+        <div className="space-y-3 p-4">
+            <div className="mx-auto h-5 w-2/3 rounded bg-gray-200" />
+            <div className="mx-auto h-3 w-1/3 rounded bg-gray-200" />
+        </div>
+    </div>
+);
+
+// =====================================
 // HOME PAGE
-// ===============================
+// =====================================
 
 const Home = () => {
 
     const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [categories, setCategories] = useState([]);
 
-    // ===============================
+    const [loading, setLoading] = useState(true);
+    const [categoriesLoading, setCategoriesLoading] = useState(true);
+
+    const [error, setError] = useState("");
+    const [categoryError, setCategoryError] = useState("");
+
+    // =====================================
     // FETCH PRODUCTS
-    // ===============================
+    // =====================================
 
     useEffect(() => {
 
@@ -294,7 +246,6 @@ const Home = () => {
                 setError("");
 
                 const res = await fetch(`${API_URL}/products`);
-
                 const data = await res.json();
 
                 if (!res.ok) {
@@ -316,10 +267,7 @@ const Home = () => {
             } catch (error) {
 
                 console.error("Home Products Error:", error);
-
-                setError(
-                    error.message || "Something went wrong"
-                );
+                setError(error.message || "Something went wrong");
 
             } finally {
 
@@ -333,9 +281,60 @@ const Home = () => {
 
     }, []);
 
-    // ===============================
+    // =====================================
+    // FETCH ADMIN CATEGORIES
+    // =====================================
+
+    useEffect(() => {
+
+        const fetchCategories = async () => {
+
+            try {
+
+                setCategoriesLoading(true);
+                setCategoryError("");
+
+                const res = await fetch(`${API_URL}/categories`);
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(
+                        data.message || "Failed to fetch categories"
+                    );
+                }
+
+                if (!data.success) {
+                    throw new Error(
+                        data.message || "Unable to load categories"
+                    );
+                }
+
+                const categoryList = (data.categories || []).filter(
+                    (category) => category.isActive !== false
+                );
+
+                setCategories(categoryList);
+
+            } catch (error) {
+
+                console.error("Home Categories Error:", error);
+                setCategoryError(error.message);
+
+            } finally {
+
+                setCategoriesLoading(false);
+
+            }
+
+        };
+
+        fetchCategories();
+
+    }, []);
+
+    // =====================================
     // FEATURED PRODUCTS
-    // ===============================
+    // =====================================
 
     const featuredProducts = products
         .filter(
@@ -359,84 +358,102 @@ const Home = () => {
 
         <main className="bg-white text-gray-900">
 
-            {/* ==================================
-                PREMIUM HERO SECTION
-            ================================== */}
+            
 
-            {/* HERO SECTION */}
-            {/* PROFESSIONAL HERO SECTION */}
+            <section
+                className="relative isolate min-h-[600px] overflow-hidden rounded-[28px] bg-cover bg-center sm:min-h-[650px] lg:min-h-[700px]"
+                style={{
+                    backgroundImage: `
+            linear-gradient(
+                90deg,
+                rgba(15, 15, 20, 0.88) 0%,
+                rgba(20, 15, 30, 0.78) 55%,
+                rgba(30, 15, 45, 0.55) 100%
+            ),
+            url('/images/cartvia-hero3.jpg')
+        `,
+                }}
+            >
+                {/* Subtle purple lighting */}
 
-            <section className="relative isolate overflow-hidden rounded-[28px] bg-[#f7f4ff]">
+                <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-purple-600/20 blur-[100px]" />
 
-                {/* Background decoration */}
-                <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-purple-200/40 blur-3xl"></div>
-                <div className="absolute -bottom-24 left-1/4 h-64 w-64 rounded-full bg-pink-200/30 blur-3xl"></div>
+                <div className="pointer-events-none absolute -bottom-40 left-0 h-96 w-96 rounded-full bg-violet-600/20 blur-[100px]" />
 
-                <div className="relative grid items-center gap-12 px-6 py-14 sm:px-10 lg:grid-cols-2 lg:px-16 lg:py-20">
+                <div className="relative mx-auto grid min-h-[600px] w-full max-w-7xl items-center gap-14 px-6 py-20 sm:px-10 lg:min-h-[700px] lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 lg:px-14">
 
                     {/* LEFT CONTENT */}
 
-                    <div className="z-10">
+                    <div className="relative z-10 max-w-2xl">
 
-                        <div className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[2px] text-purple-700 shadow-sm">
-                            <Sparkles size={15} />
+                        {/* Welcome Badge */}
+
+                        <div className="inline-flex items-center gap-2 rounded-full border border-purple-300/30 bg-white/10 px-5 py-3 text-xs font-bold uppercase tracking-[2px] text-purple-200 shadow-lg backdrop-blur-md">
+                            <Sparkles size={16} className="text-purple-300" />
                             Welcome to CARTVIA
                         </div>
 
-                        <h1 className="mt-7 text-4xl font-extrabold leading-[1.15] tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+                        {/* Main Heading */}
 
+                        <h1 className="mt-8 text-4xl font-extrabold leading-[1.12] tracking-tight text-white sm:text-5xl lg:text-[64px]">
                             Discover Your
-                            <span className="block text-purple-700">
+
+                            <span className="mt-2 block bg-gradient-to-r from-purple-300 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
                                 Style. Your Way.
                             </span>
-
                         </h1>
 
-                        <p className="mt-6 max-w-lg text-base leading-8 text-gray-600 sm:text-lg">
+                        {/* Description */}
+
+                        <p className="mt-7 max-w-xl text-base leading-8 text-gray-200 sm:text-lg">
                             From everyday essentials to your favourite finds,
                             explore a world of products designed to make
                             shopping simple, exciting and effortless.
                         </p>
 
-                        {/* BUTTONS */}
+                        {/* Buttons */}
 
                         <div className="mt-9 flex flex-wrap items-center gap-4">
 
                             <Link
                                 to="/products"
-                                className="group inline-flex items-center gap-3 rounded-xl bg-purple-700 px-7 py-4 text-sm font-bold text-white shadow-lg shadow-purple-200 transition duration-300 hover:-translate-y-1 hover:bg-purple-800"
+                                className="group inline-flex items-center gap-3 rounded-xl bg-gradient-to-r from-violet-700 to-purple-600 px-7 py-4 text-sm font-bold text-white shadow-xl shadow-purple-950/40 transition duration-300 hover:-translate-y-1 hover:from-violet-600 hover:to-purple-500"
                             >
                                 Explore Products
 
                                 <ArrowRight
-                                    size={18}
-                                    className="transition-transform group-hover:translate-x-1"
+                                    size={19}
+                                    className="transition-transform duration-300 group-hover:translate-x-1"
                                 />
                             </Link>
 
                             <Link
                                 to="/categories"
-                                className="rounded-xl border border-gray-300 bg-white px-7 py-4 text-sm font-bold text-gray-800 transition duration-300 hover:border-purple-400 hover:text-purple-700"
+                                className="inline-flex items-center gap-3 rounded-xl border border-white/40 bg-white/10 px-7 py-4 text-sm font-bold text-white backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:border-white hover:bg-white hover:text-gray-900"
                             >
                                 Browse Categories
+
+                                <ArrowUpRight size={18} />
                             </Link>
 
                         </div>
 
-                        {/* TRUST INDICATORS */}
+                        {/* Trust Information */}
 
-                        <div className="mt-10 flex flex-wrap gap-x-7 gap-y-4 border-t border-purple-200 pt-7">
+                        <div className="mt-11 flex flex-wrap items-center gap-x-8 gap-y-5 border-t border-white/20 pt-7">
 
-                            <div className="flex items-center gap-2">
-                                <ShieldCheck size={20} className="text-purple-700" />
-                                <span className="text-sm font-medium text-gray-600">
+                            <div className="flex items-center gap-2.5 text-white/90">
+                                <ShieldCheck size={20} className="text-purple-300" />
+
+                                <span className="text-sm font-medium">
                                     Secure Shopping
                                 </span>
                             </div>
 
-                            <div className="flex items-center gap-2">
-                                <ShoppingBag size={20} className="text-purple-700" />
-                                <span className="text-sm font-medium text-gray-600">
+                            <div className="flex items-center gap-2.5 text-white/90">
+                                <ShoppingBag size={20} className="text-purple-300" />
+
+                                <span className="text-sm font-medium">
                                     Multiple Categories
                                 </span>
                             </div>
@@ -445,35 +462,39 @@ const Home = () => {
 
                     </div>
 
+                    {/* RIGHT IMAGE CONTENT */}
 
-                    {/* RIGHT IMAGE */}
+                    {/* RIGHT VIDEO CONTENT */}
 
-                    <div className="relative mx-auto w-full max-w-[520px] lg:ml-auto">
+                    <div className="relative z-10 mx-auto w-full max-w-[510px] lg:ml-auto">
 
-                        {/* Main image */}
+                        <div className="group relative aspect-[4/5] overflow-hidden rounded-[28px] border border-white/20 bg-gray-900 shadow-2xl shadow-black/40 sm:aspect-[4/3]">
 
-                        <div className="relative overflow-hidden rounded-[28px] shadow-2xl shadow-purple-200/60">
+                            <video
+                                autoPlay
+                                muted
+                                loop
+                                playsInline
+                                preload="auto"
+                                poster="/images/cartvia-side2.jpg"
+                                className="absolute inset-0 h-full w-full object-cover object-center"
+                            >
+                                <source src="/videos/cartvia-hero.mp4" type="video/mp4" />
+                            </video>
 
-                            <img
-                                src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=85"
-                                alt="Fashion and lifestyle shopping"
-                                className="h-[360px] w-full object-cover sm:h-[450px]"
-                            />
-
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
+                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
 
                         </div>
 
+                        {/* Floating Badge */}
 
-                        {/* SALE BADGE */}
-
-                        <div className="absolute -right-4 -top-5 flex h-24 w-24 flex-col items-center justify-center rounded-full bg-purple-700 text-white shadow-xl sm:-right-6 sm:h-28 sm:w-28">
+                        <div className="absolute -right-3 -top-8 z-20 flex h-24 w-24 flex-col items-center justify-center rounded-full border-4 border-white/10 bg-gradient-to-br from-violet-600 to-purple-800 text-white shadow-2xl sm:-right-7 sm:h-32 sm:w-32">
 
                             <span className="text-[10px] font-semibold uppercase tracking-widest">
                                 Discover
                             </span>
 
-                            <span className="text-2xl font-extrabold tracking-wide">
+                            <span className="text-2xl font-extrabold sm:text-3xl">
                                 MORE
                             </span>
 
@@ -483,12 +504,11 @@ const Home = () => {
 
                         </div>
 
+                        {/* Floating Card */}
 
-                        {/* FLOATING PROMO CARD */}
+                        <div className="absolute -bottom-7 left-3 z-20 flex items-center gap-3 rounded-2xl bg-white p-4 shadow-2xl sm:-left-10 sm:p-5">
 
-                        <div className="absolute -bottom-6 -left-3 flex items-center gap-3 rounded-2xl border border-white bg-white p-4 shadow-xl sm:-left-8 sm:p-5">
-
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 text-purple-700">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-700">
                                 <Gift size={24} />
                             </div>
 
@@ -510,13 +530,13 @@ const Home = () => {
 
             </section>
 
-            {/* ==================================
+            {/* =====================================
                 TRUST FEATURES
-            ================================== */}
+            ===================================== */}
 
-            <section className="max-w-7xl mx-auto px-5 sm:px-8 py-10 lg:py-14">
+            <section className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:py-14">
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
 
                     {trustFeatures.map((feature) => {
 
@@ -529,25 +549,18 @@ const Home = () => {
                                 className="flex items-start gap-3"
                             >
 
-                                <div className="w-12 h-12 shrink-0 rounded-xl bg-violet-50 flex items-center justify-center">
-
-                                    <Icon
-                                        size={23}
-                                        className="text-violet-700"
-                                    />
-
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-50">
+                                    <Icon size={23} className="text-violet-700" />
                                 </div>
 
                                 <div>
-
-                                    <h3 className="font-bold text-sm sm:text-base text-gray-900">
+                                    <h3 className="text-sm font-bold text-gray-900 sm:text-base">
                                         {feature.title}
                                     </h3>
 
-                                    <p className="text-xs sm:text-sm text-gray-500 mt-1 leading-5">
+                                    <p className="mt-1 text-xs leading-5 text-gray-500 sm:text-sm">
                                         {feature.description}
                                     </p>
-
                                 </div>
 
                             </div>
@@ -560,123 +573,186 @@ const Home = () => {
 
             </section>
 
-
-            {/* ==================================
-                CATEGORIES
-            ================================== */}
+            {/* =====================================
+                DYNAMIC ADMIN CATEGORIES
+            ===================================== */}
 
             <section className="bg-[#FAF9FC] py-16 lg:py-20">
 
-                <div className="max-w-7xl mx-auto px-5 sm:px-8">
+                <div className="mx-auto max-w-7xl px-5 sm:px-8">
 
-                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 mb-9">
+                    <div className="mb-9 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
 
                         <div>
-
-                            <p className="text-violet-700 text-xs font-bold uppercase tracking-[3px]">
+                            <p className="text-xs font-bold uppercase tracking-[3px] text-violet-700">
                                 Find your favourites
                             </p>
 
-                            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-3">
+                            <h2 className="mt-3 text-3xl font-extrabold text-gray-900 sm:text-4xl">
                                 Shop by Category
                             </h2>
 
-                            <p className="text-gray-500 mt-3">
+                            <p className="mt-3 text-gray-500">
                                 Explore a collection for every part of your life.
                             </p>
-
                         </div>
 
                         <Link
                             to="/categories"
-                            className="inline-flex items-center gap-2 text-violet-700 font-bold hover:gap-4 transition-all"
+                            className="inline-flex items-center gap-2 font-bold text-violet-700 transition-all hover:gap-4"
                         >
-
                             View All
-
                             <MoveRight size={19} />
-
                         </Link>
 
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
+                    {categoriesLoading ? (
 
-                        {categories.map((category) => (
+                        <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-5">
 
-                            <Link
-                                key={category.name}
-                                to={`/products?category=${encodeURIComponent(category.name)}`}
-                                className="group"
-                            >
+                            {[1, 2, 3, 4, 5].map((item) => (
+                                <CategorySkeleton key={item} />
+                            ))}
 
-                                <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-gray-200">
+                        </div>
 
-                                    <img
-                                        src={category.image}
-                                        alt={category.name}
-                                        loading="lazy"
-                                        className="w-full h-full object-cover transition duration-700 group-hover:scale-110"
-                                    />
+                    ) : categoryError ? (
 
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
+                        <div className="rounded-2xl bg-white py-14 text-center">
 
-                                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 text-white">
+                            <PackageSearch
+                                size={45}
+                                className="mx-auto text-violet-300"
+                            />
 
-                                        <h3 className="font-bold text-lg sm:text-xl">
-                                            {category.name}
-                                        </h3>
+                            <h3 className="mt-4 text-lg font-bold text-gray-800">
+                                Categories are temporarily unavailable
+                            </h3>
 
-                                        <p className="text-white/80 text-xs sm:text-sm mt-1">
-                                            {category.subtitle}
-                                        </p>
+                            <p className="mt-2 text-sm text-gray-500">
+                                Please try again in a little while.
+                            </p>
 
-                                        <div className="w-9 h-9 rounded-full bg-white text-gray-900 flex items-center justify-center mt-4 transition group-hover:bg-violet-700 group-hover:text-white">
+                        </div>
 
-                                            <ArrowUpRight size={17} />
+                    ) : categories.length > 0 ? (
+
+                        <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-5">
+
+                            {categories.map((category) => (
+
+                                <Link
+                                    key={category._id}
+                                    to={`/products?category=${encodeURIComponent(category.name)}`}
+                                    className="group min-w-0"
+                                >
+
+                                    <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-gradient-to-br from-violet-100 to-purple-200 shadow-sm transition duration-500 group-hover:-translate-y-1 group-hover:shadow-xl">
+
+                                        {/* ADMIN-UPLOADED CLOUDINARY IMAGE */}
+
+                                        {category.image ? (
+
+                                            <img
+                                                src={category.image}
+                                                alt={category.name}
+                                                loading="lazy"
+                                                className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = "none";
+                                                }}
+                                            />
+
+                                        ) : (
+
+                                            <div className="flex h-full w-full items-center justify-center">
+                                                <PackageSearch
+                                                    size={50}
+                                                    className="text-violet-400"
+                                                />
+                                            </div>
+
+                                        )}
+
+                                        {/* IMAGE OVERLAY */}
+
+                                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+
+                                        {/* CATEGORY DETAILS */}
+
+                                        <div className="absolute bottom-0 left-0 right-0 p-4 text-white sm:p-5">
+
+                                            <h3 className="text-lg font-bold sm:text-xl">
+                                                {category.name}
+                                            </h3>
+
+                                            <p className="mt-1 text-xs text-white/80 sm:text-sm">
+                                                {category.productCount ?? 0} Products
+                                            </p>
+
+                                            <div className="mt-4 flex h-9 w-9 items-center justify-center rounded-full bg-white text-gray-900 transition duration-300 group-hover:bg-violet-700 group-hover:text-white">
+                                                <ArrowUpRight size={17} />
+                                            </div>
 
                                         </div>
 
                                     </div>
 
-                                </div>
+                                </Link>
 
-                            </Link>
+                            ))}
 
-                        ))}
+                        </div>
 
-                    </div>
+                    ) : (
+
+                        <div className="rounded-2xl bg-white py-14 text-center">
+
+                            <PackageSearch
+                                size={45}
+                                className="mx-auto text-violet-300"
+                            />
+
+                            <h3 className="mt-4 text-lg font-bold text-gray-800">
+                                No Categories Available
+                            </h3>
+
+                            <p className="mt-2 text-sm text-gray-500">
+                                Categories will appear here once added by the admin.
+                            </p>
+
+                        </div>
+
+                    )}
 
                 </div>
 
             </section>
 
-
-            {/* ==================================
+            {/* =====================================
                 FEATURED PRODUCTS
-            ================================== */}
+            ===================================== */}
 
-            <section className="max-w-7xl mx-auto px-5 sm:px-8 py-16 lg:py-20">
+            <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:py-20">
 
-                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 mb-10">
+                <div className="mb-10 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
 
                     <div>
 
                         <div className="inline-flex items-center gap-2 text-violet-700">
-
                             <Zap size={17} />
 
                             <p className="text-xs font-bold uppercase tracking-[3px]">
                                 Worth a closer look
                             </p>
-
                         </div>
 
-                        <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-3">
+                        <h2 className="mt-3 text-3xl font-extrabold text-gray-900 sm:text-4xl">
                             Featured Products
                         </h2>
 
-                        <p className="text-gray-500 mt-3">
+                        <p className="mt-3 text-gray-500">
                             Products selected for your next discovery.
                         </p>
 
@@ -684,105 +760,84 @@ const Home = () => {
 
                     <Link
                         to="/products"
-                        className="inline-flex items-center gap-2 text-violet-700 font-bold hover:gap-4 transition-all"
+                        className="inline-flex items-center gap-2 font-bold text-violet-700 transition-all hover:gap-4"
                     >
-
                         Shop All Products
-
                         <ArrowRight size={19} />
-
                     </Link>
 
                 </div>
 
-
-                {/* Loading State */}
-
                 {loading ? (
 
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-7">
-
+                    <div className="grid grid-cols-2 gap-5 sm:gap-7 lg:grid-cols-4">
                         {[1, 2, 3, 4].map((item) => (
                             <ProductSkeleton key={item} />
                         ))}
-
                     </div>
 
                 ) : error ? (
 
-                    /* Error State */
-
-                    <div className="text-center py-16 bg-[#FAF9FC] rounded-2xl">
+                    <div className="rounded-2xl bg-[#FAF9FC] py-16 text-center">
 
                         <ShoppingBag
                             size={45}
                             className="mx-auto text-violet-300"
                         />
 
-                        <h3 className="text-xl font-bold mt-4">
+                        <h3 className="mt-4 text-xl font-bold">
                             Products are temporarily unavailable
                         </h3>
 
-                        <p className="text-gray-500 mt-2">
+                        <p className="mt-2 text-gray-500">
                             Please try again in a little while.
                         </p>
 
                         <button
                             onClick={() => window.location.reload()}
-                            className="inline-flex items-center gap-2 mt-5 bg-violet-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-violet-800 transition"
+                            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-violet-700 px-6 py-3 font-semibold text-white transition hover:bg-violet-800"
                         >
-
                             <RefreshCw size={16} />
-
                             Try Again
-
                         </button>
 
                     </div>
 
                 ) : displayProducts.length > 0 ? (
 
-                    /* Products */
-
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-7">
+                    <div className="grid grid-cols-2 gap-5 sm:gap-7 lg:grid-cols-4">
 
                         {displayProducts.map((product) => (
-
                             <ProductCard
                                 key={product._id}
                                 product={product}
                             />
-
                         ))}
 
                     </div>
 
                 ) : (
 
-                    /* Empty State */
-
-                    <div className="text-center py-16 bg-[#FAF9FC] rounded-2xl">
+                    <div className="rounded-2xl bg-[#FAF9FC] py-16 text-center">
 
                         <ShoppingBag
                             size={45}
                             className="mx-auto text-violet-300"
                         />
 
-                        <h3 className="text-xl font-bold mt-4">
+                        <h3 className="mt-4 text-xl font-bold">
                             Products Coming Soon
                         </h3>
 
-                        <p className="text-gray-500 mt-2">
+                        <p className="mt-2 text-gray-500">
                             We're getting the store ready for you.
                         </p>
 
                         <Link
                             to="/products"
-                            className="inline-flex mt-5 bg-violet-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-violet-800 transition"
+                            className="mt-5 inline-flex rounded-xl bg-violet-700 px-6 py-3 font-semibold text-white transition hover:bg-violet-800"
                         >
-
                             Explore Shop
-
                         </Link>
 
                     </div>
@@ -791,90 +846,73 @@ const Home = () => {
 
             </section>
 
-
-            {/* ==================================
+            {/* =====================================
                 PROMOTIONAL BANNER
-            ================================== */}
+            ===================================== */}
 
-            <section className="max-w-7xl mx-auto px-5 sm:px-8 pb-16 lg:pb-20">
+            <section className="mx-auto max-w-7xl px-5 pb-16 sm:px-8 lg:pb-20">
 
                 <div className="relative overflow-hidden rounded-[28px] bg-[#21103D]">
 
-                    <div className="absolute -right-20 -top-32 w-80 h-80 rounded-full bg-violet-500/20 blur-3xl"></div>
+                    <div className="absolute -right-20 -top-32 h-80 w-80 rounded-full bg-violet-500/20 blur-3xl" />
 
-                    <div className="absolute right-40 -bottom-40 w-80 h-80 rounded-full bg-purple-400/20 blur-3xl"></div>
+                    <div className="absolute -bottom-40 right-40 h-80 w-80 rounded-full bg-purple-400/20 blur-3xl" />
 
-                    <div className="relative z-10 grid md:grid-cols-2 items-center gap-10 px-7 py-12 sm:px-12 lg:px-16 lg:py-16">
+                    <div className="relative z-10 grid items-center gap-10 px-7 py-12 sm:px-12 md:grid-cols-2 lg:px-16 lg:py-16">
 
                         <div className="text-white">
 
-                            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/10 px-4 py-2 rounded-full text-sm font-semibold">
-
+                            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-semibold">
                                 <Gift size={17} />
-
                                 Your next favourite is waiting
-
                             </div>
 
-                            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight mt-6">
-
+                            <h2 className="mt-6 text-3xl font-extrabold leading-tight sm:text-4xl lg:text-5xl">
                                 Discover more.
-
                                 <br />
-
                                 Shop your way.
-
                             </h2>
 
-                            <p className="text-violet-200 leading-7 mt-5 max-w-lg">
-
+                            <p className="mt-5 max-w-lg leading-7 text-violet-200">
                                 Explore a world of beauty, fashion,
                                 technology and everyday essentials
                                 all in one place.
-
                             </p>
 
                             <Link
                                 to="/products"
-                                className="inline-flex items-center gap-3 bg-white text-violet-800 px-7 py-4 rounded-xl font-bold mt-8 hover:bg-violet-100 transition"
+                                className="mt-8 inline-flex items-center gap-3 rounded-xl bg-white px-7 py-4 font-bold text-violet-800 transition hover:bg-violet-100"
                             >
-
                                 Explore CARTVIA
-
                                 <ArrowRight size={19} />
-
                             </Link>
 
                         </div>
 
-                        <div className="hidden md:flex justify-center">
+                        <div className="hidden justify-center md:flex">
 
-                            <div className="relative w-72 h-72 rounded-full border border-white/20 bg-white/5 flex items-center justify-center">
+                            <div className="relative flex h-72 w-72 items-center justify-center rounded-full border border-white/20 bg-white/5">
 
-                                <div className="w-56 h-56 rounded-full border border-white/20 bg-white/5 flex flex-col items-center justify-center text-white">
+                                <div className="flex h-56 w-56 flex-col items-center justify-center rounded-full border border-white/20 bg-white/5 text-white">
 
                                     <ShoppingBag size={48} />
 
-                                    <h3 className="text-3xl font-extrabold mt-5">
+                                    <h3 className="mt-5 text-3xl font-extrabold">
                                         CARTVIA
                                     </h3>
 
-                                    <p className="text-violet-200 text-xs tracking-[3px] mt-2">
+                                    <p className="mt-2 text-xs tracking-[3px] text-violet-200">
                                         SHOP YOUR WAY
                                     </p>
 
                                 </div>
 
-                                <div className="absolute top-7 right-2 w-12 h-12 rounded-full bg-violet-500 flex items-center justify-center text-white shadow-lg">
-
+                                <div className="absolute right-2 top-7 flex h-12 w-12 items-center justify-center rounded-full bg-violet-500 text-white shadow-lg">
                                     <Sparkles size={22} />
-
                                 </div>
 
-                                <div className="absolute bottom-10 left-0 w-12 h-12 rounded-full bg-white flex items-center justify-center text-violet-700 shadow-lg">
-
+                                <div className="absolute bottom-10 left-0 flex h-12 w-12 items-center justify-center rounded-full bg-white text-violet-700 shadow-lg">
                                     <Heart size={21} />
-
                                 </div>
 
                             </div>
@@ -887,104 +925,80 @@ const Home = () => {
 
             </section>
 
-
-            {/* ==================================
+            {/* =====================================
                 WHY CHOOSE CARTVIA
-            ================================== */}
+            ===================================== */}
 
             <section className="bg-[#FAF9FC] py-16 lg:py-20">
 
-                <div className="max-w-7xl mx-auto px-5 sm:px-8">
+                <div className="mx-auto max-w-7xl px-5 sm:px-8">
 
-                    <div className="max-w-2xl mx-auto text-center">
+                    <div className="mx-auto max-w-2xl text-center">
 
-                        <p className="text-violet-700 text-xs font-bold uppercase tracking-[3px]">
+                        <p className="text-xs font-bold uppercase tracking-[3px] text-violet-700">
                             The CARTVIA experience
                         </p>
 
-                        <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-4">
+                        <h2 className="mt-4 text-3xl font-extrabold text-gray-900 sm:text-4xl">
                             Shopping, made simple.
                         </h2>
 
-                        <p className="text-gray-500 mt-4 leading-7">
-
+                        <p className="mt-4 leading-7 text-gray-500">
                             Discover products, explore collections and
                             find everything you need in one convenient place.
-
                         </p>
 
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+                    <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
-                        <div className="bg-white rounded-2xl p-7 border border-gray-100">
+                        <div className="rounded-2xl border border-gray-100 bg-white p-7">
 
-                            <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center">
-
-                                <Package
-                                    size={24}
-                                    className="text-violet-700"
-                                />
-
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100">
+                                <Package size={24} className="text-violet-700" />
                             </div>
 
-                            <h3 className="font-bold text-lg mt-5">
+                            <h3 className="mt-5 text-lg font-bold">
                                 Explore More
                             </h3>
 
-                            <p className="text-gray-500 text-sm leading-6 mt-3">
-
+                            <p className="mt-3 text-sm leading-6 text-gray-500">
                                 Browse different categories and discover
                                 products for your everyday needs.
-
                             </p>
 
                         </div>
 
-                        <div className="bg-white rounded-2xl p-7 border border-gray-100">
+                        <div className="rounded-2xl border border-gray-100 bg-white p-7">
 
-                            <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center">
-
-                                <ShoppingBag
-                                    size={24}
-                                    className="text-violet-700"
-                                />
-
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100">
+                                <ShoppingBag size={24} className="text-violet-700" />
                             </div>
 
-                            <h3 className="font-bold text-lg mt-5">
+                            <h3 className="mt-5 text-lg font-bold">
                                 Easy Shopping
                             </h3>
 
-                            <p className="text-gray-500 text-sm leading-6 mt-3">
-
+                            <p className="mt-3 text-sm leading-6 text-gray-500">
                                 Find your favourites and add them
                                 to your shopping cart with ease.
-
                             </p>
 
                         </div>
 
-                        <div className="bg-white rounded-2xl p-7 border border-gray-100">
+                        <div className="rounded-2xl border border-gray-100 bg-white p-7">
 
-                            <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center">
-
-                                <CheckCircle
-                                    size={24}
-                                    className="text-violet-700"
-                                />
-
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100">
+                                <CheckCircle size={24} className="text-violet-700" />
                             </div>
 
-                            <h3 className="font-bold text-lg mt-5">
+                            <h3 className="mt-5 text-lg font-bold">
                                 Simple Experience
                             </h3>
 
-                            <p className="text-gray-500 text-sm leading-6 mt-3">
-
+                            <p className="mt-3 text-sm leading-6 text-gray-500">
                                 Enjoy a clean and convenient shopping
                                 experience across your devices.
-
                             </p>
 
                         </div>
@@ -995,44 +1009,32 @@ const Home = () => {
 
             </section>
 
-
-            {/* ==================================
+            {/* =====================================
                 FINAL CALL TO ACTION
-            ================================== */}
+            ===================================== */}
 
-            <section className="max-w-7xl mx-auto px-5 sm:px-8 py-16 lg:py-20">
+            <section className="mx-auto max-w-7xl px-5 py-16 text-center sm:px-8 lg:py-20">
 
-                <div className="text-center">
+                <p className="text-xs font-bold uppercase tracking-[3px] text-violet-700">
+                    Your next discovery starts here
+                </p>
 
-                    <p className="text-violet-700 text-xs font-bold uppercase tracking-[3px]">
-                        Your next discovery starts here
-                    </p>
+                <h2 className="mt-4 text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                    Ready to find your favourites?
+                </h2>
 
-                    <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-4">
+                <p className="mx-auto mt-4 max-w-xl leading-7 text-gray-500">
+                    Explore the CARTVIA collection and discover
+                    products you'll love.
+                </p>
 
-                        Ready to find your favourites?
-
-                    </h2>
-
-                    <p className="text-gray-500 mt-4 max-w-xl mx-auto leading-7">
-
-                        Explore the CARTVIA collection and discover
-                        products you'll love.
-
-                    </p>
-
-                    <Link
-                        to="/products"
-                        className="inline-flex items-center gap-3 bg-violet-700 text-white px-8 py-4 rounded-xl font-bold mt-8 hover:bg-violet-800 transition shadow-lg shadow-violet-200"
-                    >
-
-                        Start Shopping
-
-                        <ArrowRight size={19} />
-
-                    </Link>
-
-                </div>
+                <Link
+                    to="/products"
+                    className="mt-8 inline-flex items-center gap-3 rounded-xl bg-violet-700 px-8 py-4 font-bold text-white shadow-lg shadow-violet-200 transition hover:bg-violet-800"
+                >
+                    Start Shopping
+                    <ArrowRight size={19} />
+                </Link>
 
             </section>
 
