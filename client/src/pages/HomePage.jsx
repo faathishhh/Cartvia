@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
@@ -15,118 +16,286 @@ import {
     Zap,
     Gift,
     CheckCircle,
+    ArrowUpRight,
+    Package,
+    RefreshCw,
 } from "lucide-react";
+
 import API_URL from "../config/api";
 
-// CARTVIA Categories
+// ===============================
+// CARTVIA CATEGORIES
+// ===============================
+
 const categories = [
     {
         name: "Makeup",
-        subtitle: "Express your beauty",
+        subtitle: "Beauty essentials",
         image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800",
-        number: "01",
     },
     {
         name: "Perfume",
-        subtitle: "Fragrances that define you",
+        subtitle: "Find your signature scent",
         image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800",
-        number: "02",
     },
     {
         name: "Skincare",
-        subtitle: "Care for your skin",
+        subtitle: "Your everyday glow",
         image: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=800",
-        number: "03",
     },
     {
         name: "Clothing",
-        subtitle: "Style that speaks",
+        subtitle: "Everyday fashion",
         image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800",
-        number: "04",
     },
     {
         name: "Footwear",
-        subtitle: "Step into comfort",
+        subtitle: "Step up your style",
         image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
-        number: "05",
     },
     {
         name: "Accessories",
-        subtitle: "Complete your look",
+        subtitle: "The finishing touch",
         image: "https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=800",
-        number: "06",
     },
     {
         name: "Smartphone",
-        subtitle: "Technology in your hands",
+        subtitle: "Smart technology",
         image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800",
-        number: "07",
     },
     {
         name: "Laptop",
         subtitle: "Power your productivity",
         image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800",
-        number: "08",
     },
     {
         name: "Furniture",
         subtitle: "Comfort meets design",
         image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
-        number: "09",
     },
     {
         name: "Home Decor",
-        subtitle: "Make your space beautiful",
+        subtitle: "Make your space yours",
         image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800",
-        number: "10",
     },
 ];
 
-const benefits = [
+// ===============================
+// TRUST FEATURES
+// ===============================
+
+const trustFeatures = [
     {
         icon: Truck,
-        title: "Free & Fast Delivery",
-        description: "Enjoy convenient delivery on eligible orders.",
+        title: "Convenient Delivery",
+        description: "Delivery options for your orders",
     },
     {
         icon: ShieldCheck,
         title: "Secure Shopping",
-        description: "Shop confidently with secure transactions.",
+        description: "Shop with confidence",
     },
     {
         icon: CreditCard,
-        title: "Easy Payments",
-        description: "A convenient shopping experience from start to finish.",
+        title: "Easy Checkout",
+        description: "A smooth shopping experience",
     },
     {
         icon: Headphones,
         title: "Customer Support",
-        description: "We're always ready to help you.",
+        description: "We're here to help",
     },
 ];
 
+// ===============================
+// PRODUCT SKELETON
+// ===============================
+
+const ProductSkeleton = () => {
+    return (
+        <div className="animate-pulse">
+            <div className="aspect-[4/5] bg-gray-200 rounded-2xl"></div>
+
+            <div className="mt-4 space-y-3">
+                <div className="h-3 w-24 bg-gray-200 rounded"></div>
+                <div className="h-5 w-3/4 bg-gray-200 rounded"></div>
+                <div className="h-5 w-1/2 bg-gray-200 rounded"></div>
+                <div className="h-10 w-full bg-gray-200 rounded-xl mt-5"></div>
+            </div>
+        </div>
+    );
+};
+
+// ===============================
+// PRODUCT CARD
+// ===============================
+
+const ProductCard = ({ product }) => {
+    const [imageError, setImageError] = useState(false);
+
+    const image = product.images?.[0];
+
+    const hasDiscount =
+        product.discountPrice != null &&
+        Number(product.discountPrice) < Number(product.price);
+
+    const finalPrice = hasDiscount
+        ? Number(product.discountPrice)
+        : Number(product.price || 0);
+
+    const discountPercentage = hasDiscount
+        ? Math.round(
+            ((Number(product.price) - Number(product.discountPrice)) /
+                Number(product.price)) *
+            100
+        )
+        : 0;
+
+    return (
+        <div className="group min-w-0">
+
+            {/* Product Image */}
+
+            <Link
+                to={`/products/${product._id}`}
+                className="relative block overflow-hidden rounded-2xl bg-[#F5F3F9]"
+            >
+
+                <div className="aspect-[4/5] overflow-hidden">
+
+                    {image && !imageError ? (
+                        <img
+                            src={image}
+                            alt={product.productName}
+                            loading="lazy"
+                            onError={() => setImageError(true)}
+                            className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                            <ShoppingBag
+                                size={50}
+                                className="text-violet-300"
+                            />
+                        </div>
+                    )}
+
+                </div>
+
+                {/* Discount Badge */}
+
+                {hasDiscount && (
+                    <span className="absolute top-4 left-4 bg-[#EDE5FF] text-violet-800 text-xs font-bold px-3 py-2 rounded-full">
+                        -{discountPercentage}%
+                    </span>
+                )}
+
+                {!hasDiscount && product.isFeatured && (
+                    <span className="absolute top-4 left-4 bg-white text-gray-800 text-xs font-bold px-3 py-2 rounded-full shadow-sm">
+                        Featured
+                    </span>
+                )}
+
+                {/* Wishlist Icon */}
+
+                <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur flex items-center justify-center text-gray-700 shadow-sm transition group-hover:text-violet-700">
+                    <Heart size={18} />
+                </div>
+
+                {/* Hover Button */}
+
+                <div className="absolute bottom-4 left-4 right-4 translate-y-3 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+
+                    <div className="bg-white text-gray-900 text-sm font-semibold py-3 rounded-xl text-center shadow-lg">
+                        View Product
+                    </div>
+
+                </div>
+
+            </Link>
+
+            {/* Product Details */}
+
+            <div className="pt-4">
+
+                <p className="text-xs font-semibold uppercase tracking-wider text-violet-700">
+                    {product.brand || product.category}
+                </p>
+
+                <Link to={`/products/${product._id}`}>
+                    <h3 className="text-gray-900 font-semibold text-base mt-2 line-clamp-1 hover:text-violet-700 transition">
+                        {product.productName}
+                    </h3>
+                </Link>
+
+                {/* Rating */}
+
+                <div className="flex items-center gap-1.5 mt-2">
+
+                    <Star
+                        size={14}
+                        fill="currentColor"
+                        className="text-amber-400"
+                    />
+
+                    <span className="text-sm font-medium text-gray-700">
+                        {product.ratings || "0"}
+                    </span>
+
+                    <span className="text-xs text-gray-400">
+                        ({product.numReviews || 0})
+                    </span>
+
+                </div>
+
+                {/* Price */}
+
+                <div className="flex flex-wrap items-center gap-2 mt-3">
+
+                    <span className="text-lg font-bold text-gray-900">
+                        ₹{finalPrice.toLocaleString("en-IN")}
+                    </span>
+
+                    {hasDiscount && (
+                        <span className="text-sm text-gray-400 line-through">
+                            ₹{Number(product.price).toLocaleString("en-IN")}
+                        </span>
+                    )}
+
+                </div>
+
+            </div>
+
+        </div>
+    );
+};
+
+// ===============================
+// HOME PAGE
+// ===============================
+
 const Home = () => {
 
-    // Product states
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    // Fetch products from backend
+    // ===============================
+    // FETCH PRODUCTS
+    // ===============================
+
     useEffect(() => {
 
         const fetchProducts = async () => {
+
             try {
+
                 setLoading(true);
                 setError("");
 
-                const res = await fetch(
-                    `${API_URL}/products`
-                );
+                const res = await fetch(`${API_URL}/products`);
 
                 const data = await res.json();
-
-                console.log("Home Products Response:", data);
 
                 if (!res.ok) {
                     throw new Error(
@@ -139,12 +308,13 @@ const Home = () => {
                     : data.products || data.data || [];
 
                 if (!Array.isArray(productList)) {
-                    throw new Error("Invalid products response from server");
+                    throw new Error("Invalid products response");
                 }
 
                 setProducts(productList);
 
             } catch (error) {
+
                 console.error("Home Products Error:", error);
 
                 setError(
@@ -152,148 +322,184 @@ const Home = () => {
                 );
 
             } finally {
+
                 setLoading(false);
+
             }
+
         };
 
         fetchProducts();
 
     }, []);
 
-    // Get featured products
+    // ===============================
+    // FEATURED PRODUCTS
+    // ===============================
+
     const featuredProducts = products
         .filter(
             (product) =>
-                product.isFeatured && product.isActive !== false
+                product.isFeatured &&
+                product.isActive !== false
         )
         .slice(0, 4);
 
-    // If no featured products exist, display other active products
     const displayProducts =
         featuredProducts.length > 0
             ? featuredProducts
             : products
                 .filter(
-                    (product) => product.isActive !== false
+                    (product) =>
+                        product.isActive !== false
                 )
                 .slice(0, 4);
 
     return (
-        <main className="bg-[#FAF9FE] min-h-screen overflow-hidden">
+
+        <main className="bg-white text-gray-900">
+
+            {/* ==================================
+                PREMIUM HERO SECTION
+            ================================== */}
 
             {/* HERO SECTION */}
-            <section className="px-4 sm:px-6 lg:px-10 pt-6">
+            {/* PROFESSIONAL HERO SECTION */}
 
-                <div className="max-w-7xl mx-auto relative overflow-hidden rounded-[30px] bg-gradient-to-br from-[#321064] via-[#5822A5] to-[#8655D8]">
+            <section className="relative isolate overflow-hidden rounded-[28px] bg-[#f7f4ff]">
 
-                    <div className="grid lg:grid-cols-2 items-center">
+                {/* Background decoration */}
+                <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-purple-200/40 blur-3xl"></div>
+                <div className="absolute -bottom-24 left-1/4 h-64 w-64 rounded-full bg-pink-200/30 blur-3xl"></div>
 
-                        {/* HERO CONTENT */}
-                        <div className="relative z-10 p-7 sm:p-10 lg:p-16 text-white">
+                <div className="relative grid items-center gap-12 px-6 py-14 sm:px-10 lg:grid-cols-2 lg:px-16 lg:py-20">
 
-                            <div className="inline-flex items-center gap-2 bg-white/15 border border-white/20 rounded-full px-4 py-2 text-sm mb-7">
-                                <Sparkles size={16} />
-                                Your favourite shopping destination
-                            </div>
+                    {/* LEFT CONTENT */}
 
-                            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-[1.12] tracking-tight">
-                                Discover More.
+                    <div className="z-10">
 
-                                <span className="block text-violet-200 mt-2">
-                                    Shop Better.
+                        <div className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[2px] text-purple-700 shadow-sm">
+                            <Sparkles size={15} />
+                            Welcome to CARTVIA
+                        </div>
+
+                        <h1 className="mt-7 text-4xl font-extrabold leading-[1.15] tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+
+                            Discover Your
+                            <span className="block text-purple-700">
+                                Style. Your Way.
+                            </span>
+
+                        </h1>
+
+                        <p className="mt-6 max-w-lg text-base leading-8 text-gray-600 sm:text-lg">
+                            From everyday essentials to your favourite finds,
+                            explore a world of products designed to make
+                            shopping simple, exciting and effortless.
+                        </p>
+
+                        {/* BUTTONS */}
+
+                        <div className="mt-9 flex flex-wrap items-center gap-4">
+
+                            <Link
+                                to="/products"
+                                className="group inline-flex items-center gap-3 rounded-xl bg-purple-700 px-7 py-4 text-sm font-bold text-white shadow-lg shadow-purple-200 transition duration-300 hover:-translate-y-1 hover:bg-purple-800"
+                            >
+                                Explore Products
+
+                                <ArrowRight
+                                    size={18}
+                                    className="transition-transform group-hover:translate-x-1"
+                                />
+                            </Link>
+
+                            <Link
+                                to="/categories"
+                                className="rounded-xl border border-gray-300 bg-white px-7 py-4 text-sm font-bold text-gray-800 transition duration-300 hover:border-purple-400 hover:text-purple-700"
+                            >
+                                Browse Categories
+                            </Link>
+
+                        </div>
+
+                        {/* TRUST INDICATORS */}
+
+                        <div className="mt-10 flex flex-wrap gap-x-7 gap-y-4 border-t border-purple-200 pt-7">
+
+                            <div className="flex items-center gap-2">
+                                <ShieldCheck size={20} className="text-purple-700" />
+                                <span className="text-sm font-medium text-gray-600">
+                                    Secure Shopping
                                 </span>
-                            </h1>
-
-                            <p className="text-violet-100 text-base sm:text-lg leading-8 mt-7 max-w-lg">
-                                Explore products you'll love, discover exciting
-                                collections and enjoy a shopping experience
-                                that makes every purchase special.
-                            </p>
-
-                            <div className="flex flex-wrap gap-4 mt-9">
-
-                                <Link
-                                    to="/products"
-                                    className="inline-flex items-center gap-3 bg-white text-violet-800 px-7 py-4 rounded-xl font-bold hover:bg-violet-100 transition duration-300 shadow-xl"
-                                >
-                                    Start Shopping
-                                    <ArrowRight size={20} />
-                                </Link>
-
-                                <Link
-                                    to="/categories"
-                                    className="inline-flex items-center gap-2 border border-white/40 text-white px-7 py-4 rounded-xl font-semibold hover:bg-white/10 transition"
-                                >
-                                    Explore Collection
-                                </Link>
-
                             </div>
 
-                            <div className="flex flex-wrap gap-7 sm:gap-10 mt-12 pt-8 border-t border-white/20">
-
-                                <div>
-                                    <h3 className="text-3xl font-extrabold">
-                                        100%
-                                    </h3>
-                                    <p className="text-violet-200 text-sm mt-1">
-                                        Shopping Experience
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <h3 className="text-3xl font-extrabold">
-                                        24/7
-                                    </h3>
-                                    <p className="text-violet-200 text-sm mt-1">
-                                        Customer Support
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <h3 className="text-3xl font-extrabold">
-                                        Easy
-                                    </h3>
-                                    <p className="text-violet-200 text-sm mt-1">
-                                        Online Shopping
-                                    </p>
-                                </div>
-
+                            <div className="flex items-center gap-2">
+                                <ShoppingBag size={20} className="text-purple-700" />
+                                <span className="text-sm font-medium text-gray-600">
+                                    Multiple Categories
+                                </span>
                             </div>
 
                         </div>
 
-                        {/* HERO IMAGE */}
-                        <div className="relative min-h-[350px] lg:min-h-[650px] p-5 sm:p-8">
+                    </div>
+
+
+                    {/* RIGHT IMAGE */}
+
+                    <div className="relative mx-auto w-full max-w-[520px] lg:ml-auto">
+
+                        {/* Main image */}
+
+                        <div className="relative overflow-hidden rounded-[28px] shadow-2xl shadow-purple-200/60">
 
                             <img
-                                src="https://images.unsplash.com/photo-1607082349566-187342175e2f?w=1200"
-                                alt="CARTVIA shopping collection"
-                                className="w-full h-full min-h-[350px] lg:min-h-[590px] object-cover rounded-3xl"
+                                src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=85"
+                                alt="Fashion and lifestyle shopping"
+                                className="h-[360px] w-full object-cover sm:h-[450px]"
                             />
 
-                            <div className="absolute inset-5 sm:inset-8 rounded-3xl bg-gradient-to-t from-purple-950/50 to-transparent"></div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
 
-                            <div className="absolute bottom-12 left-10 sm:left-14 bg-white rounded-2xl p-5 shadow-2xl max-w-[240px]">
+                        </div>
 
-                                <div className="flex items-center gap-2 text-violet-700">
-                                    <Sparkles size={18} />
 
-                                    <span className="text-xs font-bold uppercase tracking-wider">
-                                        CARTVIA COLLECTION
-                                    </span>
-                                </div>
+                        {/* SALE BADGE */}
 
-                                <h3 className="text-xl font-extrabold text-gray-900 mt-3">
-                                    Find Your Next Favourite.
-                                </h3>
+                        <div className="absolute -right-4 -top-5 flex h-24 w-24 flex-col items-center justify-center rounded-full bg-purple-700 text-white shadow-xl sm:-right-6 sm:h-28 sm:w-28">
 
-                                <Link
-                                    to="/products"
-                                    className="text-violet-700 font-semibold text-sm flex items-center gap-2 mt-3"
-                                >
-                                    Shop Now <ArrowRight size={16} />
-                                </Link>
+                            <span className="text-[10px] font-semibold uppercase tracking-widest">
+                                Discover
+                            </span>
 
+                            <span className="text-2xl font-extrabold tracking-wide">
+                                MORE
+                            </span>
+
+                            <span className="text-[9px] font-medium">
+                                WITH CARTVIA
+                            </span>
+
+                        </div>
+
+
+                        {/* FLOATING PROMO CARD */}
+
+                        <div className="absolute -bottom-6 -left-3 flex items-center gap-3 rounded-2xl border border-white bg-white p-4 shadow-xl sm:-left-8 sm:p-5">
+
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 text-purple-700">
+                                <Gift size={24} />
+                            </div>
+
+                            <div>
+                                <p className="text-sm font-bold text-gray-900">
+                                    Find Your Favourites
+                                </p>
+
+                                <p className="mt-1 text-xs text-gray-500">
+                                    Something for everyone.
+                                </p>
                             </div>
 
                         </div>
@@ -304,413 +510,370 @@ const Home = () => {
 
             </section>
 
-            {/* TRUST HIGHLIGHTS */}
-            <section className="max-w-7xl mx-auto px-5 sm:px-8 py-10">
+            {/* ==================================
+                TRUST FEATURES
+            ================================== */}
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+            <section className="max-w-7xl mx-auto px-5 sm:px-8 py-10 lg:py-14">
 
-                    {[
-                        {
-                            icon: Truck,
-                            title: "Fast Delivery",
-                            text: "Convenient delivery",
-                        },
-                        {
-                            icon: ShieldCheck,
-                            title: "Secure Shopping",
-                            text: "Shop with confidence",
-                        },
-                        {
-                            icon: CreditCard,
-                            title: "Easy Payments",
-                            text: "Simple checkout",
-                        },
-                        {
-                            icon: Headphones,
-                            title: "24/7 Support",
-                            text: "We're here to help",
-                        },
-                    ].map((item) => {
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
 
-                        const Icon = item.icon;
+                    {trustFeatures.map((feature) => {
+
+                        const Icon = feature.icon;
 
                         return (
+
                             <div
-                                key={item.title}
-                                className="flex items-center gap-3 bg-white p-5 rounded-2xl border border-gray-100 hover:shadow-lg transition"
+                                key={feature.title}
+                                className="flex items-start gap-3"
                             >
 
-                                <div className="w-12 h-12 shrink-0 rounded-xl bg-violet-100 flex items-center justify-center">
+                                <div className="w-12 h-12 shrink-0 rounded-xl bg-violet-50 flex items-center justify-center">
+
                                     <Icon
                                         size={23}
                                         className="text-violet-700"
                                     />
+
                                 </div>
 
                                 <div>
-                                    <h3 className="font-bold text-gray-900 text-sm sm:text-base">
-                                        {item.title}
+
+                                    <h3 className="font-bold text-sm sm:text-base text-gray-900">
+                                        {feature.title}
                                     </h3>
 
-                                    <p className="text-gray-500 text-xs sm:text-sm mt-1">
-                                        {item.text}
+                                    <p className="text-xs sm:text-sm text-gray-500 mt-1 leading-5">
+                                        {feature.description}
                                     </p>
+
                                 </div>
 
                             </div>
+
                         );
+
                     })}
 
                 </div>
 
             </section>
 
-            {/* UPDATED CATEGORY SECTION */}
-            <section className="max-w-7xl mx-auto px-5 sm:px-8 py-16">
 
-                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 mb-9">
+            {/* ==================================
+                CATEGORIES
+            ================================== */}
 
-                    <div>
-                        <p className="text-violet-700 font-bold uppercase tracking-[3px] text-xs">
-                            Explore our collections
-                        </p>
-
-                        <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-3">
-                            Shop by Category
-                        </h2>
-
-                        <p className="text-gray-500 mt-3">
-                            Discover something special in every collection.
-                        </p>
-                    </div>
-
-                    <Link
-                        to="/categories"
-                        className="inline-flex items-center gap-2 text-violet-700 font-bold hover:gap-4 transition-all"
-                    >
-                        View All Categories
-                        <MoveRight size={19} />
-                    </Link>
-
-                </div>
-
-                {/* All 10 Categories */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-
-                    {categories.map((category) => (
-
-                        <Link
-                            to={`/products?category=${encodeURIComponent(category.name)}`}
-                            key={category.name}
-                            className="group relative h-[300px] sm:h-[320px] rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300"
-                        >
-
-                            <img
-                                src={category.image}
-                                alt={category.name}
-                                loading="lazy"
-                                className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                            />
-
-                            {/* Image Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"></div>
-
-                            {/* Category Number */}
-                            <div className="absolute top-5 right-5 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-full px-4 py-2 text-xs font-bold">
-                                COLLECTION {category.number}
-                            </div>
-
-                            {/* Category Details */}
-                            <div className="absolute bottom-0 left-0 p-6 text-white">
-
-                                <p className="text-violet-200 text-sm font-medium">
-                                    {category.subtitle}
-                                </p>
-
-                                <h3 className="text-2xl sm:text-3xl font-extrabold mt-2">
-                                    {category.name}
-                                </h3>
-
-                                <span className="inline-flex items-center gap-2 mt-4 font-semibold group-hover:gap-4 transition-all">
-                                    Explore Collection
-                                    <ArrowRight size={18} />
-                                </span>
-
-                            </div>
-
-                        </Link>
-
-                    ))}
-
-                </div>
-
-            </section>
-
-            {/* FEATURED PRODUCTS */}
-            <section className="bg-white py-20">
+            <section className="bg-[#FAF9FC] py-16 lg:py-20">
 
                 <div className="max-w-7xl mx-auto px-5 sm:px-8">
 
-                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 mb-10">
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 mb-9">
 
                         <div>
-                            <div className="flex items-center gap-2 text-violet-700">
-                                <Zap size={18} />
 
-                                <p className="font-bold uppercase tracking-[3px] text-xs">
-                                    Trending now
-                                </p>
-                            </div>
+                            <p className="text-violet-700 text-xs font-bold uppercase tracking-[3px]">
+                                Find your favourites
+                            </p>
 
                             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-3">
-                                Featured Products
+                                Shop by Category
                             </h2>
 
                             <p className="text-gray-500 mt-3">
-                                Handpicked products worth exploring.
+                                Explore a collection for every part of your life.
                             </p>
+
                         </div>
 
                         <Link
-                            to="/products"
+                            to="/categories"
                             className="inline-flex items-center gap-2 text-violet-700 font-bold hover:gap-4 transition-all"
                         >
-                            View All Products
-                            <ArrowRight size={19} />
+
+                            View All
+
+                            <MoveRight size={19} />
+
                         </Link>
 
                     </div>
 
-                    {/* Loading State */}
-                    {loading ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
 
-                        <div className="text-center py-16">
-                            <div className="w-12 h-12 border-4 border-violet-200 border-t-violet-700 rounded-full animate-spin mx-auto mb-4"></div>
+                        {categories.map((category) => (
 
-                            <p className="text-violet-700 font-semibold">
-                                Loading products...
-                            </p>
-                        </div>
+                            <Link
+                                key={category.name}
+                                to={`/products?category=${encodeURIComponent(category.name)}`}
+                                className="group"
+                            >
 
-                    ) : error ? (
+                                <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-gray-200">
 
-                        /* Error State */
-                        <div className="text-center py-16 bg-[#FAF9FE] rounded-2xl">
+                                    <img
+                                        src={category.image}
+                                        alt={category.name}
+                                        loading="lazy"
+                                        className="w-full h-full object-cover transition duration-700 group-hover:scale-110"
+                                    />
 
-                            <ShoppingBag
-                                size={45}
-                                className="mx-auto text-red-400"
-                            />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
 
-                            <h3 className="text-xl font-bold mt-4 text-gray-800">
-                                Unable to Load Products
-                            </h3>
+                                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 text-white">
 
-                            <p className="text-red-500 mt-2">
-                                {error}
-                            </p>
+                                        <h3 className="font-bold text-lg sm:text-xl">
+                                            {category.name}
+                                        </h3>
 
-                        </div>
+                                        <p className="text-white/80 text-xs sm:text-sm mt-1">
+                                            {category.subtitle}
+                                        </p>
 
-                    ) : displayProducts.length > 0 ? (
+                                        <div className="w-9 h-9 rounded-full bg-white text-gray-900 flex items-center justify-center mt-4 transition group-hover:bg-violet-700 group-hover:text-white">
 
-                        /* Display Products */
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
-
-                            {displayProducts.map((product) => {
-
-                                const image = product.images?.[0];
-
-                                const hasDiscount =
-                                    product.discountPrice != null &&
-                                    product.discountPrice < product.price;
-
-                                const finalPrice = hasDiscount
-                                    ? product.discountPrice
-                                    : product.price;
-
-                                return (
-
-                                    <div
-                                        key={product._id}
-                                        className="group bg-[#FAF9FE] rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition duration-300"
-                                    >
-
-                                        <Link
-                                            to={`/products/${product._id}`}
-                                            className="block relative h-64 overflow-hidden"
-                                        >
-
-                                            {image ? (
-                                                <img
-                                                    src={image}
-                                                    alt={product.productName}
-                                                    className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-violet-100">
-                                                    <ShoppingBag
-                                                        size={45}
-                                                        className="text-violet-400"
-                                                    />
-                                                </div>
-                                            )}
-
-                                            <span className="absolute top-4 left-4 bg-violet-700 text-white px-3 py-1.5 rounded-full text-xs font-bold">
-                                                {product.isFeatured ? "FEATURED" : "POPULAR"}
-                                            </span>
-
-                                            <div className="absolute top-4 right-4 bg-white p-2.5 rounded-full text-gray-500 shadow-md">
-                                                <Heart size={17} />
-                                            </div>
-
-                                        </Link>
-
-                                        <div className="p-5">
-
-                                            <p className="text-xs uppercase tracking-wider text-violet-600 font-bold">
-                                                {product.brand || product.category}
-                                            </p>
-
-                                            <Link to={`/products/${product._id}`}>
-                                                <h3 className="font-bold text-gray-900 text-lg mt-2 line-clamp-1 hover:text-violet-700 transition">
-                                                    {product.productName}
-                                                </h3>
-                                            </Link>
-
-                                            <div className="flex items-center gap-1 mt-3">
-                                                <Star
-                                                    size={16}
-                                                    fill="currentColor"
-                                                    className="text-yellow-400"
-                                                />
-
-                                                <span className="text-sm font-semibold text-gray-700">
-                                                    {product.ratings || 0}
-                                                </span>
-
-                                                <span className="text-xs text-gray-400">
-                                                    ({product.numReviews || 0} reviews)
-                                                </span>
-                                            </div>
-
-                                            <div className="flex items-center gap-3 mt-4">
-
-                                                <span className="text-xl font-extrabold text-violet-700">
-                                                    ₹{Number(finalPrice || 0).toLocaleString("en-IN")}
-                                                </span>
-
-                                                {hasDiscount && (
-                                                    <span className="text-sm text-gray-400 line-through">
-                                                        ₹{Number(product.price).toLocaleString("en-IN")}
-                                                    </span>
-                                                )}
-
-                                            </div>
-
-                                            <Link
-                                                to={`/products/${product._id}`}
-                                                className="mt-5 w-full bg-violet-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-violet-800 transition"
-                                            >
-                                                View Product
-                                                <ArrowRight size={17} />
-                                            </Link>
+                                            <ArrowUpRight size={17} />
 
                                         </div>
 
                                     </div>
-                                );
-                            })}
 
-                        </div>
+                                </div>
 
-                    ) : (
-
-                        /* Empty Products State */
-                        <div className="text-center py-16 bg-[#FAF9FE] rounded-2xl">
-
-                            <ShoppingBag
-                                size={45}
-                                className="mx-auto text-violet-400"
-                            />
-
-                            <h3 className="text-xl font-bold mt-4">
-                                Products Coming Soon
-                            </h3>
-
-                            <p className="text-gray-500 mt-2">
-                                We're preparing something special for you.
-                            </p>
-
-                            <Link
-                                to="/products"
-                                className="inline-flex mt-5 bg-violet-700 text-white px-6 py-3 rounded-xl font-semibold"
-                            >
-                                Explore Shop
                             </Link>
 
-                        </div>
+                        ))}
 
-                    )}
+                    </div>
 
                 </div>
 
             </section>
 
-            {/* SPECIAL OFFER SECTION */}
-            <section className="max-w-7xl mx-auto px-5 sm:px-8 py-20">
 
-                <div className="relative overflow-hidden rounded-[30px] bg-gradient-to-r from-[#321064] to-[#7540C5] p-8 sm:p-12 lg:p-16">
+            {/* ==================================
+                FEATURED PRODUCTS
+            ================================== */}
 
-                    <div className="absolute -right-20 -top-32 w-80 h-80 rounded-full bg-white/10"></div>
+            <section className="max-w-7xl mx-auto px-5 sm:px-8 py-16 lg:py-20">
 
-                    <div className="absolute right-20 -bottom-40 w-80 h-80 rounded-full bg-white/10"></div>
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 mb-10">
 
-                    <div className="relative z-10 grid md:grid-cols-2 items-center gap-10">
+                    <div>
+
+                        <div className="inline-flex items-center gap-2 text-violet-700">
+
+                            <Zap size={17} />
+
+                            <p className="text-xs font-bold uppercase tracking-[3px]">
+                                Worth a closer look
+                            </p>
+
+                        </div>
+
+                        <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-3">
+                            Featured Products
+                        </h2>
+
+                        <p className="text-gray-500 mt-3">
+                            Products selected for your next discovery.
+                        </p>
+
+                    </div>
+
+                    <Link
+                        to="/products"
+                        className="inline-flex items-center gap-2 text-violet-700 font-bold hover:gap-4 transition-all"
+                    >
+
+                        Shop All Products
+
+                        <ArrowRight size={19} />
+
+                    </Link>
+
+                </div>
+
+
+                {/* Loading State */}
+
+                {loading ? (
+
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-7">
+
+                        {[1, 2, 3, 4].map((item) => (
+                            <ProductSkeleton key={item} />
+                        ))}
+
+                    </div>
+
+                ) : error ? (
+
+                    /* Error State */
+
+                    <div className="text-center py-16 bg-[#FAF9FC] rounded-2xl">
+
+                        <ShoppingBag
+                            size={45}
+                            className="mx-auto text-violet-300"
+                        />
+
+                        <h3 className="text-xl font-bold mt-4">
+                            Products are temporarily unavailable
+                        </h3>
+
+                        <p className="text-gray-500 mt-2">
+                            Please try again in a little while.
+                        </p>
+
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="inline-flex items-center gap-2 mt-5 bg-violet-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-violet-800 transition"
+                        >
+
+                            <RefreshCw size={16} />
+
+                            Try Again
+
+                        </button>
+
+                    </div>
+
+                ) : displayProducts.length > 0 ? (
+
+                    /* Products */
+
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-7">
+
+                        {displayProducts.map((product) => (
+
+                            <ProductCard
+                                key={product._id}
+                                product={product}
+                            />
+
+                        ))}
+
+                    </div>
+
+                ) : (
+
+                    /* Empty State */
+
+                    <div className="text-center py-16 bg-[#FAF9FC] rounded-2xl">
+
+                        <ShoppingBag
+                            size={45}
+                            className="mx-auto text-violet-300"
+                        />
+
+                        <h3 className="text-xl font-bold mt-4">
+                            Products Coming Soon
+                        </h3>
+
+                        <p className="text-gray-500 mt-2">
+                            We're getting the store ready for you.
+                        </p>
+
+                        <Link
+                            to="/products"
+                            className="inline-flex mt-5 bg-violet-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-violet-800 transition"
+                        >
+
+                            Explore Shop
+
+                        </Link>
+
+                    </div>
+
+                )}
+
+            </section>
+
+
+            {/* ==================================
+                PROMOTIONAL BANNER
+            ================================== */}
+
+            <section className="max-w-7xl mx-auto px-5 sm:px-8 pb-16 lg:pb-20">
+
+                <div className="relative overflow-hidden rounded-[28px] bg-[#21103D]">
+
+                    <div className="absolute -right-20 -top-32 w-80 h-80 rounded-full bg-violet-500/20 blur-3xl"></div>
+
+                    <div className="absolute right-40 -bottom-40 w-80 h-80 rounded-full bg-purple-400/20 blur-3xl"></div>
+
+                    <div className="relative z-10 grid md:grid-cols-2 items-center gap-10 px-7 py-12 sm:px-12 lg:px-16 lg:py-16">
 
                         <div className="text-white">
 
-                            <div className="inline-flex items-center gap-2 bg-white/15 px-4 py-2 rounded-full text-sm font-semibold">
+                            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/10 px-4 py-2 rounded-full text-sm font-semibold">
+
                                 <Gift size={17} />
-                                A better way to shop
+
+                                Your next favourite is waiting
+
                             </div>
 
-                            <h2 className="text-4xl sm:text-5xl font-extrabold leading-tight mt-6">
-                                Great Finds.
+                            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight mt-6">
+
+                                Discover more.
+
                                 <br />
-                                Better Choices.
+
+                                Shop your way.
+
                             </h2>
 
-                            <p className="text-violet-100 leading-7 mt-5 max-w-lg">
-                                From everyday essentials to special finds,
-                                discover products that make your life better.
+                            <p className="text-violet-200 leading-7 mt-5 max-w-lg">
+
+                                Explore a world of beauty, fashion,
+                                technology and everyday essentials
+                                all in one place.
+
                             </p>
 
                             <Link
                                 to="/products"
                                 className="inline-flex items-center gap-3 bg-white text-violet-800 px-7 py-4 rounded-xl font-bold mt-8 hover:bg-violet-100 transition"
                             >
-                                Explore Products
+
+                                Explore CARTVIA
+
                                 <ArrowRight size={19} />
+
                             </Link>
 
                         </div>
 
                         <div className="hidden md:flex justify-center">
 
-                            <div className="w-64 h-64 rounded-full border border-white/30 bg-white/10 flex items-center justify-center">
+                            <div className="relative w-72 h-72 rounded-full border border-white/20 bg-white/5 flex items-center justify-center">
 
-                                <div className="w-48 h-48 rounded-full border border-white/40 bg-white/10 flex flex-col items-center justify-center text-white">
+                                <div className="w-56 h-56 rounded-full border border-white/20 bg-white/5 flex flex-col items-center justify-center text-white">
 
-                                    <Sparkles size={45} />
+                                    <ShoppingBag size={48} />
 
-                                    <h3 className="text-3xl font-extrabold mt-4">
+                                    <h3 className="text-3xl font-extrabold mt-5">
                                         CARTVIA
                                     </h3>
 
-                                    <p className="text-violet-200 text-xs tracking-widest mt-2">
-                                        DISCOVER MORE
+                                    <p className="text-violet-200 text-xs tracking-[3px] mt-2">
+                                        SHOP YOUR WAY
                                     </p>
+
+                                </div>
+
+                                <div className="absolute top-7 right-2 w-12 h-12 rounded-full bg-violet-500 flex items-center justify-center text-white shadow-lg">
+
+                                    <Sparkles size={22} />
+
+                                </div>
+
+                                <div className="absolute bottom-10 left-0 w-12 h-12 rounded-full bg-white flex items-center justify-center text-violet-700 shadow-lg">
+
+                                    <Heart size={21} />
 
                                 </div>
 
@@ -724,59 +887,107 @@ const Home = () => {
 
             </section>
 
-            {/* WHY CHOOSE CARTVIA */}
-            <section className="bg-white py-20">
+
+            {/* ==================================
+                WHY CHOOSE CARTVIA
+            ================================== */}
+
+            <section className="bg-[#FAF9FC] py-16 lg:py-20">
 
                 <div className="max-w-7xl mx-auto px-5 sm:px-8">
 
-                    <div className="text-center max-w-2xl mx-auto">
+                    <div className="max-w-2xl mx-auto text-center">
 
-                        <p className="text-violet-700 font-bold uppercase tracking-[3px] text-xs">
+                        <p className="text-violet-700 text-xs font-bold uppercase tracking-[3px]">
                             The CARTVIA experience
                         </p>
 
                         <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-4">
-                            Shopping Made Better
+                            Shopping, made simple.
                         </h2>
 
                         <p className="text-gray-500 mt-4 leading-7">
-                            We believe shopping should be simple,
-                            comfortable and enjoyable.
+
+                            Discover products, explore collections and
+                            find everything you need in one convenient place.
+
                         </p>
 
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-14">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
 
-                        {benefits.map((benefit) => {
+                        <div className="bg-white rounded-2xl p-7 border border-gray-100">
 
-                            const Icon = benefit.icon;
+                            <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center">
 
-                            return (
+                                <Package
+                                    size={24}
+                                    className="text-violet-700"
+                                />
 
-                                <div
-                                    key={benefit.title}
-                                    className="text-center p-8 rounded-2xl bg-[#FAF9FE] hover:bg-violet-50 hover:-translate-y-1 transition duration-300"
-                                >
+                            </div>
 
-                                    <div className="w-16 h-16 mx-auto rounded-2xl bg-violet-100 flex items-center justify-center">
-                                        <Icon
-                                            size={30}
-                                            className="text-violet-700"
-                                        />
-                                    </div>
+                            <h3 className="font-bold text-lg mt-5">
+                                Explore More
+                            </h3>
 
-                                    <h3 className="text-lg font-bold text-gray-900 mt-6">
-                                        {benefit.title}
-                                    </h3>
+                            <p className="text-gray-500 text-sm leading-6 mt-3">
 
-                                    <p className="text-gray-500 text-sm leading-6 mt-3">
-                                        {benefit.description}
-                                    </p>
+                                Browse different categories and discover
+                                products for your everyday needs.
 
-                                </div>
-                            );
-                        })}
+                            </p>
+
+                        </div>
+
+                        <div className="bg-white rounded-2xl p-7 border border-gray-100">
+
+                            <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center">
+
+                                <ShoppingBag
+                                    size={24}
+                                    className="text-violet-700"
+                                />
+
+                            </div>
+
+                            <h3 className="font-bold text-lg mt-5">
+                                Easy Shopping
+                            </h3>
+
+                            <p className="text-gray-500 text-sm leading-6 mt-3">
+
+                                Find your favourites and add them
+                                to your shopping cart with ease.
+
+                            </p>
+
+                        </div>
+
+                        <div className="bg-white rounded-2xl p-7 border border-gray-100">
+
+                            <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center">
+
+                                <CheckCircle
+                                    size={24}
+                                    className="text-violet-700"
+                                />
+
+                            </div>
+
+                            <h3 className="font-bold text-lg mt-5">
+                                Simple Experience
+                            </h3>
+
+                            <p className="text-gray-500 text-sm leading-6 mt-3">
+
+                                Enjoy a clean and convenient shopping
+                                experience across your devices.
+
+                            </p>
+
+                        </div>
 
                     </div>
 
@@ -784,61 +995,49 @@ const Home = () => {
 
             </section>
 
-            {/* NEWSLETTER SECTION */}
-            <section className="max-w-7xl mx-auto px-5 sm:px-8 py-20">
 
-                <div className="bg-violet-50 border border-violet-100 rounded-3xl p-8 sm:p-12 text-center">
+            {/* ==================================
+                FINAL CALL TO ACTION
+            ================================== */}
 
-                    <div className="w-14 h-14 rounded-2xl bg-violet-100 mx-auto flex items-center justify-center">
-                        <Sparkles
-                            size={27}
-                            className="text-violet-700"
-                        />
-                    </div>
+            <section className="max-w-7xl mx-auto px-5 sm:px-8 py-16 lg:py-20">
 
-                    <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-6">
-                        Stay in the Loop
+                <div className="text-center">
+
+                    <p className="text-violet-700 text-xs font-bold uppercase tracking-[3px]">
+                        Your next discovery starts here
+                    </p>
+
+                    <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-4">
+
+                        Ready to find your favourites?
+
                     </h2>
 
-                    <p className="text-gray-500 mt-4 max-w-lg mx-auto leading-7">
-                        Discover new arrivals, exciting collections and
-                        updates from CARTVIA.
+                    <p className="text-gray-500 mt-4 max-w-xl mx-auto leading-7">
+
+                        Explore the CARTVIA collection and discover
+                        products you'll love.
+
                     </p>
 
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            alert("Newsletter subscription will be available soon!");
-                        }}
-                        className="max-w-lg mx-auto flex flex-col sm:flex-row gap-3 mt-8"
+                    <Link
+                        to="/products"
+                        className="inline-flex items-center gap-3 bg-violet-700 text-white px-8 py-4 rounded-xl font-bold mt-8 hover:bg-violet-800 transition shadow-lg shadow-violet-200"
                     >
 
-                        <input
-                            type="email"
-                            required
-                            placeholder="Enter your email address"
-                            className="flex-1 min-w-0 px-5 py-4 rounded-xl border border-gray-200 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100 bg-white"
-                        />
+                        Start Shopping
 
-                        <button
-                            type="submit"
-                            className="bg-violet-700 text-white px-7 py-4 rounded-xl font-bold hover:bg-violet-800 transition"
-                        >
-                            Subscribe
-                        </button>
+                        <ArrowRight size={19} />
 
-                    </form>
-
-                    <p className="text-xs text-gray-400 mt-5 flex items-center justify-center gap-2">
-                        <CheckCircle size={14} />
-                        Stay updated with CARTVIA.
-                    </p>
+                    </Link>
 
                 </div>
 
             </section>
 
         </main>
+
     );
 };
 
