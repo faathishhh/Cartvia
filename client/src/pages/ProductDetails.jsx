@@ -295,6 +295,9 @@ const ProductDetails = () => {
 
             setMessage("Product added to cart successfully!");
 
+            // Update Navbar cart count immediately
+            window.dispatchEvent(new Event("cartUpdated"));
+
         } catch (error) {
 
             console.error("Add to Cart Error:", error);
