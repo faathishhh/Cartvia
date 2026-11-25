@@ -29,11 +29,16 @@ import { AuthProvider } from "./context/AuthContext";
 import AdminCategories from "./admin/pages/AdminCategories";
 import Analytics from "./admin/pages/Analytics";
 import AdminSettings from "./admin/pages/Settings";
+import ScrollToTop from "./ScrollToTop";
+
+
+
 
 function App() {
   return (
     <AuthProvider>
       <Toaster position="top-center" />
+      <ScrollToTop />
 
       <Routes>
 
